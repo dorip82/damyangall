@@ -27,7 +27,7 @@ function rewrittenPathname(pathname: string): string {
   return pathname === "/" ? PUBLIC_PREFIX : `${PUBLIC_PREFIX}${pathname}`;
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "damyangall.kr";
   const subdomain = resolveSubdomain(
     request.headers.get("host") ?? "",
