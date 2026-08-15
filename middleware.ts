@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { resolveSubdomain } from "@/lib/utils/domain";
+import { resolveSubdomain, normalizeRootDomain } from "@/lib/utils/domain";
 import { SITE_SLUG_HEADER } from "@/lib/site/current-site";
 
 const PUBLIC_PREFIX = "/site";
@@ -28,7 +28,9 @@ function rewrittenPathname(pathname: string): string {
 }
 
 export async function middleware(request: NextRequest) {
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "damyangall.kr";
+  const rootDomain = normalizeRootDomain(
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "damyangall.kr"
+  );
   const subdomain = resolveSubdomain(
     request.headers.get("host") ?? "",
     rootDomain

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { normalizeRootDomain } from "@/lib/utils/domain";
 
 /**
  * Builds the external URL for a site's subdomain (e.g. sorihyanggi.damyangall.kr).
@@ -23,9 +24,8 @@ export async function getSiteUrl(slug: string): Promise<string> {
     return `http://${slug}.${host}`;
   }
 
-  const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "damyangall.kr").replace(
-    /^www\./,
-    ""
+  const rootDomain = normalizeRootDomain(
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "damyangall.kr"
   );
   return `https://${slug}.${rootDomain}`;
 }
