@@ -69,7 +69,7 @@ export async function createListing(
 
   revalidatePath("/directory");
   revalidatePath("/directory/admin");
-  redirect(`/directory/admin/${listing.id}`);
+  redirect("/directory/admin");
 }
 
 export async function updateListing(
@@ -115,7 +115,7 @@ export async function updateListing(
   revalidatePath(`/directory/${listingId}`);
   revalidatePath("/directory/admin");
   revalidatePath(`/directory/admin/${listingId}`);
-  return { ok: true };
+  redirect("/directory/admin");
 }
 
 export async function deleteListing(listingId: string) {
