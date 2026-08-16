@@ -275,6 +275,7 @@ export interface Database {
           phone: string | null;
           address: string | null;
           image_url: string | null;
+          instagram_url: string | null;
           status: DirectoryListingStatus;
           created_at: string;
           updated_at: string;

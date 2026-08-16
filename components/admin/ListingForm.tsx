@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ListingImageField } from "@/components/admin/ListingImageField";
 import {
   Select,
   SelectContent,
@@ -80,14 +81,19 @@ export function ListingForm({
         </div>
       </div>
 
+      <ListingImageField defaultValue={listing?.image_url} />
+
       <div className="space-y-2">
-        <Label htmlFor="imageUrl">사진 URL</Label>
+        <Label htmlFor="instagramUrl">인스타그램 URL</Label>
         <Input
-          id="imageUrl"
-          name="imageUrl"
-          placeholder="https://..."
-          defaultValue={listing?.image_url ?? ""}
+          id="instagramUrl"
+          name="instagramUrl"
+          placeholder="https://instagram.com/..."
+          defaultValue={listing?.instagram_url ?? ""}
         />
+        <p className="text-xs text-muted-foreground">
+          입력하면 상세 페이지에 인스타그램 아이콘이 활성화됩니다. 비워두면 비활성 상태로 표시됩니다.
+        </p>
       </div>
 
       <div className="space-y-2">

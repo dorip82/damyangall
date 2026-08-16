@@ -19,6 +19,7 @@ const listingSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   imageUrl: z.string().optional(),
+  instagramUrl: z.string().optional(),
   status: z.enum(["PUBLISHED", "HIDDEN"]),
 });
 
@@ -38,6 +39,7 @@ export async function createListing(
     phone: formData.get("phone"),
     address: formData.get("address"),
     imageUrl: formData.get("imageUrl"),
+    instagramUrl: formData.get("instagramUrl"),
     status: formData.get("status"),
   });
   if (!parsed.success) {
@@ -57,6 +59,7 @@ export async function createListing(
       phone: values.phone || null,
       address: values.address || null,
       image_url: values.imageUrl || null,
+      instagram_url: values.instagramUrl || null,
       status: values.status,
     })
     .select("id")
@@ -81,6 +84,7 @@ export async function updateListing(
     phone: formData.get("phone"),
     address: formData.get("address"),
     imageUrl: formData.get("imageUrl"),
+    instagramUrl: formData.get("instagramUrl"),
     status: formData.get("status"),
   });
   if (!parsed.success) {
@@ -100,6 +104,7 @@ export async function updateListing(
       phone: values.phone || null,
       address: values.address || null,
       image_url: values.imageUrl || null,
+      instagram_url: values.instagramUrl || null,
       status: values.status,
     })
     .eq("id", listingId);
