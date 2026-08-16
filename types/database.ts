@@ -37,6 +37,16 @@ export type PostStatus =
   | "ARCHIVED";
 export type MenuType = "PAGE" | "POSTS" | "EXTERNAL_LINK";
 export type InquiryStatus = "PUBLISHED" | "HIDDEN";
+export type DirectoryCategory =
+  | "CAFE"
+  | "RESTAURANT"
+  | "GAS_STATION"
+  | "PHARMACY"
+  | "PARKING"
+  | "PENSION"
+  | "MART"
+  | "BANK";
+export type DirectoryListingStatus = "PUBLISHED" | "HIDDEN";
 
 export interface Database {
   public: {
@@ -256,6 +266,30 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["site_inquiries"]["Row"]>;
         Relationships: [];
       };
+      directory_listings: {
+        Row: {
+          id: string;
+          category: DirectoryCategory;
+          name: string;
+          description: string | null;
+          phone: string | null;
+          address: string | null;
+          image_url: string | null;
+          status: DirectoryListingStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<
+          Database["public"]["Tables"]["directory_listings"]["Row"]
+        > & {
+          category: DirectoryCategory;
+          name: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["directory_listings"]["Row"]
+        >;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -274,6 +308,8 @@ export interface Database {
       post_status: PostStatus;
       menu_type: MenuType;
       inquiry_status: InquiryStatus;
+      directory_category: DirectoryCategory;
+      directory_listing_status: DirectoryListingStatus;
     };
   };
 }

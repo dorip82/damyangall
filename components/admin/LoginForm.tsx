@@ -22,7 +22,7 @@ const schema = z.object({
   password: z.string().min(1, "비밀번호를 입력해주세요"),
 });
 
-export function LoginForm() {
+export function LoginForm({ redirectTo = "/admin" }: { redirectTo?: string }) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<z.infer<typeof schema>>({
@@ -38,7 +38,7 @@ export function LoginForm() {
       setServerError("이메일 또는 비밀번호가 올바르지 않습니다.");
       return;
     }
-    router.push("/admin");
+    router.push(redirectTo);
     router.refresh();
   }
 

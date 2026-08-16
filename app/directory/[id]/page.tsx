@@ -1,0 +1,88 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Phone, MapPin, ArrowLeft } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { getCategoryLabel } from "@/lib/directory/categories";
+import { PortalHeader } from "@/components/main/PortalHeader";
+import { PortalFooter } from "@/components/main/PortalFooter";
+import type { DirectoryListing } from "@/types/directory";
+
+export const dynamic = "force-dynamic";
+
+export default async function DirectoryListingPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: listing } = await supabase
+    .from("directory_listings")
+    .select("*")
+    .eq("id", id)
+    .eq("status", "PUBLISHED")
+    .maybeSingle<DirectoryListing>();
+
+  if (!listing) notFound();
+
+  return (
+    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+      <PortalHeader />
+      <main className="flex-1">
+        <article className="mx-auto max-w-3xl px-6 py-16">
+          <Link
+            href="/directory"
+            className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+            목록으로
+          </Link>
+
+          {listing.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={listing.image_url}
+              alt=""
+              className="mb-6 aspect-video w-full rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="mb-6 flex aspect-video w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
+              사진 준비중
+            </div>
+          )}
+
+          <span className="mb-2 inline-block rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
+            {getCategoryLabel(listing.category)}
+          </span>
+          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+            {listing.name}
+          </h1>
+
+          {listing.description ? (
+            <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-foreground/80">
+              {listing.description}
+            </p>
+          ) : null}
+
+          {listing.phone || listing.address ? (
+            <ul className="mt-6 space-y-2 border-t border-border pt-6 text-sm text-foreground/80">
+              {listing.phone ? (
+                <li className="flex items-center gap-2">
+                  <Phone className="size-4 text-accent" aria-hidden />
+                  <a href={`tel:${listing.phone}`}>{listing.phone}</a>
+                </li>
+              ) : null}
+              {listing.address ? (
+                <li className="flex items-center gap-2">
+                  <MapPin className="size-4 text-accent" aria-hidden />
+                  {listing.address}
+                </li>
+              ) : null}
+            </ul>
+          ) : null}
+        </article>
+      </main>
+      <PortalFooter />
+    </div>
+  );
+}
