@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Settings, FileText, Newspaper, MessageCircle } from "lucide-react";
+import { LayoutDashboard, Settings, FileText, Newspaper, MessageCircle, User } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "대시보드", Icon: LayoutDashboard },
@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: "/admin/pages", label: "페이지", Icon: FileText },
   { href: "/admin/posts", label: "활동내역", Icon: Newspaper },
   { href: "/admin/inquiries", label: "문의", Icon: MessageCircle },
+  { href: "/admin/account", label: "계정", Icon: User },
 ] as const;
 
 export function AdminSidebar() {
