@@ -6,6 +6,8 @@ import { getCategoryLabel } from "@/lib/directory/categories";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
 import { InstagramIcon } from "@/components/site/InstagramIcon";
+import { FavoriteButton } from "@/components/site/FavoriteButton";
+import { getFavoritedIds } from "@/lib/favorites/get-favorited-ids";
 import type { DirectoryListing } from "@/types/directory";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +28,11 @@ export default async function DirectoryListingPage({
 
   if (!listing) notFound();
 
+  const [favoritedIds, { data: userData }] = await Promise.all([
+    getFavoritedIds("DIRECTORY_LISTING"),
+    supabase.auth.getUser(),
+  ]);
+
   return (
     <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
       <PortalHeader />
@@ -39,18 +46,27 @@ export default async function DirectoryListingPage({
             목록으로
           </Link>
 
-          {listing.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={listing.image_url}
-              alt=""
-              className="mb-6 aspect-video w-full rounded-2xl object-cover"
+          <div className="relative mb-6 aspect-video w-full">
+            {listing.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={listing.image_url}
+                alt=""
+                className="h-full w-full rounded-2xl object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
+                사진 준비중
+              </div>
+            )}
+            <FavoriteButton
+              targetType="DIRECTORY_LISTING"
+              targetId={listing.id}
+              initialFavorited={favoritedIds.has(listing.id)}
+              isLoggedIn={Boolean(userData.user)}
+              className="absolute top-3 right-3 size-10"
             />
-          ) : (
-            <div className="mb-6 flex aspect-video w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
-              사진 준비중
-            </div>
-          )}
+          </div>
 
           <span className="mb-2 inline-block rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
             {getCategoryLabel(listing.category)}

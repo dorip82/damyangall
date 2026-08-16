@@ -1,16 +1,21 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getCategoryLabel } from "@/lib/directory/categories";
+import { getFavoritedIds } from "@/lib/favorites/get-favorited-ids";
+import { DirectoryCarousel } from "@/components/main/DirectoryCarousel";
 
 export async function DirectorySection() {
   const supabase = await createClient();
-  const { data: listings } = await supabase
-    .from("directory_listings")
-    .select("id, category, name, description, image_url")
-    .eq("status", "PUBLISHED")
-    .order("created_at", { ascending: false })
-    .limit(6);
+  const [{ data: listings }, favoritedIds, { data: userData }] = await Promise.all([
+    supabase
+      .from("directory_listings")
+      .select("id, category, name, description, image_url")
+      .eq("status", "PUBLISHED")
+      .order("created_at", { ascending: false })
+      .limit(30),
+    getFavoritedIds("DIRECTORY_LISTING"),
+    supabase.auth.getUser(),
+  ]);
 
   if (!listings?.length) return null;
 
@@ -31,39 +36,12 @@ export async function DirectorySection() {
           <ArrowRight className="size-4" aria-hidden />
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {listings.map((listing) => (
-          <Link
-            key={listing.id}
-            href={`/directory/${listing.id}`}
-            className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-          >
-            {listing.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={listing.image_url}
-                alt=""
-                className="aspect-video w-full object-cover"
-              />
-            ) : (
-              <div className="flex aspect-video w-full items-center justify-center bg-muted text-sm text-muted-foreground">
-                사진 준비중
-              </div>
-            )}
-            <div className="p-4">
-              <span className="mb-1 inline-block rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
-                {getCategoryLabel(listing.category)}
-              </span>
-              <p className="font-semibold text-card-foreground">{listing.name}</p>
-              {listing.description ? (
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                  {listing.description}
-                </p>
-              ) : null}
-            </div>
-          </Link>
-        ))}
-      </div>
+
+      <DirectoryCarousel
+        listings={listings}
+        favoritedIds={[...favoritedIds]}
+        isLoggedIn={Boolean(userData.user)}
+      />
     </section>
   );
 }

@@ -47,6 +47,18 @@ export type DirectoryCategory =
   | "MART"
   | "BANK";
 export type DirectoryListingStatus = "PUBLISHED" | "HIDDEN";
+export type FavoriteTargetType = "DIRECTORY_LISTING" | "SITE";
+export type CommunityCategory =
+  | "FREE"
+  | "LOCAL_INFO"
+  | "FOOD"
+  | "TRAVEL"
+  | "JOBS"
+  | "MARKET"
+  | "CLUB_RECRUIT"
+  | "EVENT_INFO"
+  | "REPORT";
+export type CommunityPostStatus = "PUBLISHED" | "HIDDEN";
 
 export interface Database {
   public: {
@@ -291,6 +303,43 @@ export interface Database {
         >;
         Relationships: [];
       };
+      favorites: {
+        Row: {
+          id: string;
+          user_id: string;
+          target_type: FavoriteTargetType;
+          target_id: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["favorites"]["Row"]> & {
+          user_id: string;
+          target_type: FavoriteTargetType;
+          target_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["favorites"]["Row"]>;
+        Relationships: [];
+      };
+      community_posts: {
+        Row: {
+          id: string;
+          category: CommunityCategory;
+          author_name: string;
+          title: string;
+          content: string;
+          status: CommunityPostStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<
+          Database["public"]["Tables"]["community_posts"]["Row"]
+        > & {
+          author_name: string;
+          title: string;
+          content: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_posts"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -311,6 +360,8 @@ export interface Database {
       inquiry_status: InquiryStatus;
       directory_category: DirectoryCategory;
       directory_listing_status: DirectoryListingStatus;
+      community_category: CommunityCategory;
+      community_post_status: CommunityPostStatus;
     };
   };
 }

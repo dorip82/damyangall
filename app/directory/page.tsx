@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { DIRECTORY_CATEGORIES, getCategoryLabel } from "@/lib/directory/categories";
+import { getFavoritedIds } from "@/lib/favorites/get-favorited-ids";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
+import { FavoriteButton } from "@/components/site/FavoriteButton";
 import type { DirectoryCategory } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +28,13 @@ export default async function DirectoryPage({
     .eq("status", "PUBLISHED")
     .order("created_at", { ascending: false });
   if (activeCategory) query = query.eq("category", activeCategory);
-  const { data: listings } = await query;
+
+  const [{ data: listings }, favoritedIds, { data: userData }] = await Promise.all([
+    query,
+    getFavoritedIds("DIRECTORY_LISTING"),
+    supabase.auth.getUser(),
+  ]);
+  const isLoggedIn = Boolean(userData.user);
 
   return (
     <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
@@ -78,18 +86,27 @@ export default async function DirectoryPage({
                   href={`/directory/${listing.id}`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  {listing.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={listing.image_url}
-                      alt=""
-                      className="aspect-video w-full object-cover"
+                  <div className="relative aspect-video w-full">
+                    {listing.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={listing.image_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
+                        사진 준비중
+                      </div>
+                    )}
+                    <FavoriteButton
+                      targetType="DIRECTORY_LISTING"
+                      targetId={listing.id}
+                      initialFavorited={favoritedIds.has(listing.id)}
+                      isLoggedIn={isLoggedIn}
+                      className="absolute top-2 right-2"
                     />
-                  ) : (
-                    <div className="flex aspect-video w-full items-center justify-center bg-muted text-sm text-muted-foreground">
-                      사진 준비중
-                    </div>
-                  )}
+                  </div>
                   <div className="p-4">
                     <span className="mb-1 inline-block rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
                       {getCategoryLabel(listing.category)}

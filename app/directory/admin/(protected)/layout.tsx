@@ -17,9 +17,21 @@ export default async function DirectoryAdminLayout({
       <header className="flex h-14 items-center justify-between border-b border-border px-6">
         <div className="flex items-baseline gap-2">
           <span className="font-bold text-foreground">올담</span>
-          <span className="text-sm text-muted-foreground">지역정보 관리자</span>
+          <span className="text-sm text-muted-foreground">플랫폼 관리자</span>
         </div>
         <div className="flex items-center gap-4">
+          <Link
+            href="/directory/admin"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            업체 목록
+          </Link>
+          <Link
+            href="/directory/admin/community"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            커뮤니티
+          </Link>
           <Link
             href="/directory"
             target="_blank"
