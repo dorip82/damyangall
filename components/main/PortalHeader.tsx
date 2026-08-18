@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "@/components/admin/LogoutButton";
+import { AccountMenu } from "@/components/main/AccountMenu";
 
 export async function PortalHeader() {
   const supabase = await createClient();
@@ -9,13 +9,15 @@ export async function PortalHeader() {
   } = await supabase.auth.getUser();
 
   let nickname: string | null = null;
+  let isSuperAdmin = false;
   if (user) {
     const { data: profile } = await supabase
       .from("users")
-      .select("nickname, email")
+      .select("nickname, email, role")
       .eq("id", user.id)
       .maybeSingle();
     nickname = profile?.nickname || profile?.email?.split("@")[0] || null;
+    isSuperAdmin = profile?.role === "SUPER_ADMIN";
   }
 
   return (
@@ -51,12 +53,7 @@ export async function PortalHeader() {
 
         <div className="ml-auto flex items-center gap-3">
           {user ? (
-            <>
-              <span className="hidden text-sm text-muted-foreground sm:inline">
-                {nickname}님
-              </span>
-              <LogoutButton redirectTo="/" />
-            </>
+            <AccountMenu nickname={nickname} isSuperAdmin={isSuperAdmin} />
           ) : (
             <>
               <Link
