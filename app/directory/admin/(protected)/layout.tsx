@@ -21,10 +21,22 @@ export default async function DirectoryAdminLayout({
         </div>
         <div className="flex items-center gap-4">
           <Link
+            href="/directory/admin/main"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            메인 관리
+          </Link>
+          <Link
             href="/directory/admin"
             className="text-sm text-muted-foreground hover:text-foreground"
           >
             업체 목록
+          </Link>
+          <Link
+            href="/directory/admin/events"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            행사
           </Link>
           <Link
             href="/directory/admin/community"

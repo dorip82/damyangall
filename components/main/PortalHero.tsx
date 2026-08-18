@@ -2,7 +2,13 @@ import { Search } from "lucide-react";
 
 const HERO_IMAGE_COUNT = 7;
 
-export function PortalHero() {
+export function PortalHero({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) {
   // Picked once per request so repeat visits see some variety across
   // Damyang's scenic spots instead of always the same banner. This route is
   // already force-dynamic (app/page.tsx), so per-request randomness here is
@@ -28,11 +34,10 @@ export function PortalHero() {
           ALLDAM
         </span>
         <h1 className="animate-slide-up text-4xl font-bold tracking-tight sm:text-6xl">
-          담양의 모든 이야기를 담다.
+          {title}
         </h1>
         <p className="animate-slide-up max-w-md text-sm text-ivory/80 sm:text-base">
-          담양군민, 동아리·동호회, 기업·소상공인, 기관·단체가 함께 만들어가는
-          지역 통합 플랫폼입니다.
+          {subtitle}
         </p>
 
         <form action="/search" className="mt-2 flex w-full max-w-md gap-2">

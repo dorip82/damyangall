@@ -59,6 +59,7 @@ export type CommunityCategory =
   | "EVENT_INFO"
   | "REPORT";
 export type CommunityPostStatus = "PUBLISHED" | "HIDDEN";
+export type EventStatus = "PUBLISHED" | "HIDDEN";
 
 export interface Database {
   public: {
@@ -340,6 +341,52 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["community_posts"]["Row"]>;
         Relationships: [];
       };
+      events: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          location: string | null;
+          start_at: string;
+          end_at: string | null;
+          image_url: string | null;
+          status: EventStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["events"]["Row"]> & {
+          title: string;
+          start_at: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["events"]["Row"]>;
+        Relationships: [];
+      };
+      main_page_settings: {
+        Row: {
+          id: number;
+          hero_title: string;
+          hero_subtitle: string;
+          news_banner_visible: boolean;
+          news_banner_title: string;
+          news_banner_description: string;
+          today_banner_visible: boolean;
+          today_banner_title: string;
+          today_banner_description: string;
+          ad_banner_visible: boolean;
+          ad_banner_title: string;
+          ad_banner_description: string;
+          updated_at: string;
+        };
+        Insert: Partial<
+          Database["public"]["Tables"]["main_page_settings"]["Row"]
+        > & {
+          id: number;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["main_page_settings"]["Row"]
+        >;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -362,6 +409,7 @@ export interface Database {
       directory_listing_status: DirectoryListingStatus;
       community_category: CommunityCategory;
       community_post_status: CommunityPostStatus;
+      event_status: EventStatus;
     };
   };
 }

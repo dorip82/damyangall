@@ -41,6 +41,12 @@ export async function PortalHeader() {
           >
             커뮤니티
           </Link>
+          <Link
+            href="/events"
+            className="text-sm font-medium text-foreground/80 hover:text-primary"
+          >
+            행사
+          </Link>
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
