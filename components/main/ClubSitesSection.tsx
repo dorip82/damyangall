@@ -17,14 +17,14 @@ export async function ClubSitesSection() {
   );
 
   return (
-    <section className="mx-auto max-w-4xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-6 py-16">
       <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">
         동아리·동호회
       </h2>
       <p className="mb-8 text-sm text-muted-foreground">
         담양에서 활동하는 동아리와 동호회의 홈페이지를 만나보세요.
       </p>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((site) => (
           <a
             key={site.id}

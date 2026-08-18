@@ -20,7 +20,7 @@ export async function DirectorySection() {
   if (!listings?.length) return null;
 
   return (
-    <section className="mx-auto max-w-4xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-6 py-16">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground sm:text-3xl">지역정보</h2>

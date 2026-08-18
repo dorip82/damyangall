@@ -13,8 +13,8 @@ export async function CommunitySection() {
     .limit(5);
 
   return (
-    <section className="mx-auto max-w-4xl px-6 py-16">
-      <div className="mb-8 flex items-center justify-between">
+    <div>
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground sm:text-3xl">커뮤니티</h2>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -62,6 +62,6 @@ export async function CommunitySection() {
           ))}
         </ul>
       )}
-    </section>
+    </div>
   );
 }

@@ -11,11 +11,11 @@ export async function EventsSection() {
     .eq("status", "PUBLISHED")
     .gte("start_at", new Date().toISOString())
     .order("start_at", { ascending: true })
-    .limit(3);
+    .limit(5);
 
   return (
-    <section className="mx-auto max-w-4xl px-6 py-16">
-      <div className="mb-8 flex items-center justify-between">
+    <div>
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground sm:text-3xl">행사</h2>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -36,40 +36,45 @@ export async function EventsSection() {
           <p className="text-sm text-muted-foreground">예정된 행사가 없습니다.</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <ul className="divide-y divide-border rounded-2xl border border-border">
           {events.map((event) => (
-            <Link
-              key={event.id}
-              href={`/events/${event.id}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="aspect-video w-full">
-                {event.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={event.image_url} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
-                    사진 준비중
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-accent">
-                  <CalendarDays className="size-3.5" aria-hidden />
-                  {formatEventDateRange(event.start_at, event.end_at)}
-                </p>
-                <p className="mt-1.5 font-semibold text-card-foreground">{event.title}</p>
-                {event.location ? (
-                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="size-3.5 shrink-0" aria-hidden />
-                    {event.location}
+            <li key={event.id}>
+              <Link
+                href={`/events/${event.id}`}
+                className="flex items-center gap-4 px-5 py-4 hover:bg-muted"
+              >
+                <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                  {event.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={event.image_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <CalendarDays className="size-5" aria-hidden />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-foreground">{event.title}</p>
+                  <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+                    <span>{formatEventDateRange(event.start_at, event.end_at)}</span>
+                    {event.location ? (
+                      <span className="flex items-center gap-1 truncate">
+                        <span aria-hidden>·</span>
+                        <MapPin className="size-3.5 shrink-0" aria-hidden />
+                        <span className="truncate">{event.location}</span>
+                      </span>
+                    ) : null}
                   </p>
-                ) : null}
-              </div>
-            </Link>
+                </div>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
-    </section>
+    </div>
   );
 }
