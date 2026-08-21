@@ -20,8 +20,27 @@ function absolutize(origin: string, path: string): string {
   return path.startsWith("http") ? path : `${origin}${path}`;
 }
 
-function uniqueInOrder(values: string[]): string[] {
-  return [...new Set(values)];
+/**
+ * All four sites embed an auto-incrementing numeric article ID in the URL.
+ * The homepage HTML order is NOT reliably newest-first though — these
+ * templates mix in "related/popular" widgets ahead of the actual latest-news
+ * river, so a link appearing early in the document can be months old. Sort
+ * by the numeric ID itself (descending) instead of trusting document order.
+ */
+function extractLinksSortedByNumericId(
+  html: string,
+  linkPattern: RegExp,
+  origin: string
+): string[] {
+  const byId = new Map<number, string>();
+  for (const match of html.matchAll(linkPattern)) {
+    const path = match[1];
+    const idMatch = path.match(/(\d+)/);
+    if (!idMatch) continue;
+    const id = Number(idMatch[1]);
+    if (!byId.has(id)) byId.set(id, absolutize(origin, path));
+  }
+  return [...byId.entries()].sort((a, b) => b[0] - a[0]).map(([, url]) => url);
 }
 
 /** "2026.08.20 17:00" (always KST on these sites) -> Date. */
@@ -33,6 +52,13 @@ function parseKstDateTime(text: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function extractPublishedTimeMeta(html: string): Date | null {
+  const match = html.match(/article:published_time["'][^>]*content=["']([^"']+)["']/i);
+  if (!match) return null;
+  const date = new Date(match[1]);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export const NEWS_SOURCES: NewsSource[] = [
   {
     name: "뉴스디",
@@ -40,19 +66,13 @@ export const NEWS_SOURCES: NewsSource[] = [
     origin: "http://www.newsdy.co.kr",
     charset: "utf-8",
     extractLinks(html) {
-      const links = [
-        ...html.matchAll(/href="(\/news\/articleView\.html\?idxno=\d+)"/g),
-      ].map((m) => absolutize("http://www.newsdy.co.kr", m[1]));
-      return uniqueInOrder(links);
-    },
-    extractPublishedAt(html) {
-      const match = html.match(
-        /article:published_time["'][^>]*content=["']([^"']+)["']/i
+      return extractLinksSortedByNumericId(
+        html,
+        /href="(\/news\/articleView\.html\?idxno=\d+)"/g,
+        "http://www.newsdy.co.kr"
       );
-      if (!match) return null;
-      const date = new Date(match[1]);
-      return Number.isNaN(date.getTime()) ? null : date;
     },
+    extractPublishedAt: extractPublishedTimeMeta,
   },
   {
     name: "담양신문",
@@ -60,10 +80,11 @@ export const NEWS_SOURCES: NewsSource[] = [
     origin: "http://xn--jk1bu0n8rgz0c.kr",
     charset: "euc-kr",
     extractLinks(html) {
-      const links = [
-        ...html.matchAll(/href=['"](\/\d{6,})['"]\s+class=['"]maintitle['"]/g),
-      ].map((m) => absolutize("http://xn--jk1bu0n8rgz0c.kr", m[1]));
-      return uniqueInOrder(links);
+      return extractLinksSortedByNumericId(
+        html,
+        /href=['"](\/\d{6,})['"]\s+class=['"]maintitle['"]/g,
+        "http://xn--jk1bu0n8rgz0c.kr"
+      );
     },
     // No reliable per-article timestamp on this site (see NewsSource.extractPublishedAt doc).
     extractPublishedAt() {
@@ -76,19 +97,13 @@ export const NEWS_SOURCES: NewsSource[] = [
     origin: "http://www.dyjachinews.co.kr",
     charset: "utf-8",
     extractLinks(html) {
-      const links = [
-        ...html.matchAll(/href="(\/news\/articleView\.html\?idxno=\d+)"/g),
-      ].map((m) => absolutize("http://www.dyjachinews.co.kr", m[1]));
-      return uniqueInOrder(links);
-    },
-    extractPublishedAt(html) {
-      const match = html.match(
-        /article:published_time["'][^>]*content=["']([^"']+)["']/i
+      return extractLinksSortedByNumericId(
+        html,
+        /href="(\/news\/articleView\.html\?idxno=\d+)"/g,
+        "http://www.dyjachinews.co.kr"
       );
-      if (!match) return null;
-      const date = new Date(match[1]);
-      return Number.isNaN(date.getTime()) ? null : date;
     },
+    extractPublishedAt: extractPublishedTimeMeta,
   },
   {
     name: "담양매일",
@@ -96,10 +111,11 @@ export const NEWS_SOURCES: NewsSource[] = [
     origin: "http://dymaeil.kr",
     charset: "utf-8",
     extractLinks(html) {
-      const links = [
-        ...html.matchAll(/href="(?:http:\/\/dymaeil\.kr)?(\/damyang\/\d+)/g),
-      ].map((m) => absolutize("http://dymaeil.kr", m[1]));
-      return uniqueInOrder(links);
+      return extractLinksSortedByNumericId(
+        html,
+        /href="(?:http:\/\/dymaeil\.kr)?(\/damyang\/\d+)/g,
+        "http://dymaeil.kr"
+      );
     },
     extractPublishedAt(html) {
       const match = html.match(/bo_v_time"[^>]*>[\s\S]{0,60}?(\d{4}\.\d{2}\.\d{2}\s+\d{2}:\d{2})/);

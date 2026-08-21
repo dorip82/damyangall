@@ -35,9 +35,22 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&#8203;/g, "");
 }
 
+/**
+ * Some sites' og:title is really "headline > 카테고리 | 사이트명" (their
+ * <title> tag reused as-is), which pads the actual headline with tokens
+ * that dilute the title-similarity dedup check against the same story on
+ * another outlet. " > " doesn't otherwise show up in a Korean headline, so
+ * trimming from the first one is safe.
+ */
+function stripTitleSuffix(title: string): string {
+  const cutIndex = title.indexOf(" > ");
+  return cutIndex === -1 ? title : title.slice(0, cutIndex).trim();
+}
+
 export function extractOgMeta(html: string): OgMeta {
+  const title = readMetaContent(html, "og:title");
   return {
-    title: readMetaContent(html, "og:title"),
+    title: title ? stripTitleSuffix(title) : null,
     description: readMetaContent(html, "og:description"),
     image: readMetaContent(html, "og:image"),
   };
