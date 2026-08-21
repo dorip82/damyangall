@@ -28,9 +28,15 @@ const ALLOWED_EXTENSIONS = [
   "gif",
 ];
 
-export function CommunityAttachmentField() {
-  const [url, setUrl] = useState("");
-  const [fileName, setFileName] = useState("");
+export function CommunityAttachmentField({
+  defaultValue,
+  defaultFileName,
+}: {
+  defaultValue?: string | null;
+  defaultFileName?: string | null;
+}) {
+  const [url, setUrl] = useState(defaultValue ?? "");
+  const [fileName, setFileName] = useState(defaultFileName ?? "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

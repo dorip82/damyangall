@@ -34,7 +34,7 @@ export async function DirectorySection() {
   const shuffledListings = shuffle(listings);
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-6 py-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground sm:text-3xl">지역정보</h2>

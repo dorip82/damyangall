@@ -17,7 +17,7 @@ export async function ClubSitesSection() {
   );
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-6 py-10">
       <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">
         동아리·동호회
       </h2>

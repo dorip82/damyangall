@@ -16,8 +16,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
  * image. Uploading restricts the value to whatever our own Storage bucket
  * returns.
  */
-export function CommunityImageField() {
-  const [url, setUrl] = useState("");
+export function CommunityImageField({ defaultValue }: { defaultValue?: string | null }) {
+  const [url, setUrl] = useState(defaultValue ?? "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

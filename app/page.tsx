@@ -33,7 +33,7 @@ export default async function RootPortalPage() {
             /directory/admin/main 에서 문구를 편집할 수 있는 준비중 배너로 유지한다.
             폭이 넓은 화면에서 한 줄짜리 배너/목록이 좌우로 텅 비어 보이지 않도록,
             짝지을 수 있는 섹션은 그리드로 묶는다. */}
-        <section className="mx-auto max-w-6xl px-6 py-16">
+        <section className="mx-auto max-w-6xl px-6 py-10">
           <div className="grid gap-10 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <NewsSection />
@@ -44,7 +44,7 @@ export default async function RootPortalPage() {
 
         <DirectorySection />
 
-        <section className="mx-auto max-w-6xl px-6 py-16">
+        <section className="mx-auto max-w-6xl px-6 py-10">
           <div className="grid gap-10 lg:grid-cols-2">
             <CommunitySection />
             <EventsSection />
