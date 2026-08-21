@@ -62,6 +62,8 @@ export type CommunityPostStatus = "PUBLISHED" | "HIDDEN";
 export type EventStatus = "PUBLISHED" | "HIDDEN";
 export type NewsCategory = "LOCAL" | "LIFE" | "REPORT";
 export type NewsStatus = "PUBLISHED" | "HIDDEN";
+export type BannerAdPosition = "LEFT" | "RIGHT";
+export type BannerAdStatus = "PUBLISHED" | "HIDDEN";
 
 export interface Database {
   public: {
@@ -412,6 +414,26 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["news"]["Row"]>;
         Relationships: [];
       };
+      banner_ads: {
+        Row: {
+          id: string;
+          position: BannerAdPosition;
+          title: string;
+          image_url: string;
+          link_url: string | null;
+          sort_order: number;
+          status: BannerAdStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["banner_ads"]["Row"]> & {
+          position: BannerAdPosition;
+          title: string;
+          image_url: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["banner_ads"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -437,6 +459,8 @@ export interface Database {
       event_status: EventStatus;
       news_category: NewsCategory;
       news_status: NewsStatus;
+      banner_ad_position: BannerAdPosition;
+      banner_ad_status: BannerAdStatus;
     };
   };
 }

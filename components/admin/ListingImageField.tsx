@@ -14,10 +14,12 @@ export function ListingImageField({
   defaultValue,
   name = "imageUrl",
   label = "사진",
+  previewClassName = "aspect-video w-full max-w-xs rounded-md border border-border object-cover",
 }: {
   defaultValue?: string | null;
   name?: string;
   label?: string;
+  previewClassName?: string;
 }) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [uploading, setUploading] = useState(false);
@@ -64,11 +66,7 @@ export function ListingImageField({
 
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={url}
-          alt=""
-          className="aspect-video w-full max-w-xs rounded-md border border-border object-cover"
-        />
+        <img src={url} alt="" className={previewClassName} />
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2">

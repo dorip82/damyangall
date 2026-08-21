@@ -2,6 +2,7 @@ import { Megaphone } from "lucide-react";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalHero } from "@/components/main/PortalHero";
 import { ComingSoonBanner } from "@/components/main/ComingSoonBanner";
+import { SideBannerAds } from "@/components/main/SideBannerAds";
 import { NewsSection } from "@/components/main/NewsSection";
 import { TodaySection } from "@/components/main/TodaySection";
 import { DirectorySection } from "@/components/main/DirectorySection";
@@ -20,6 +21,7 @@ export default async function RootPortalPage() {
 
   return (
     <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+      <SideBannerAds />
       <PortalHeader />
       <main className="flex-1">
         <PortalHero title={settings.hero_title} subtitle={settings.hero_subtitle} />

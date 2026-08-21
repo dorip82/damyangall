@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Store, Newspaper, CalendarDays, MessageCircle, Plus, EyeOff } from "lucide-react";
+import { Store, Newspaper, CalendarDays, MessageCircle, Megaphone, Plus, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCategoryLabel } from "@/lib/directory/categories";
 import { getNewsCategoryLabel } from "@/lib/news/categories";
@@ -18,6 +18,8 @@ export default async function AdminDashboardPage() {
     eventsHidden,
     communityTotal,
     communityHidden,
+    bannerAdsActive,
+    bannerAdsHidden,
     recentListings,
     recentNews,
     recentCommunityPosts,
@@ -41,6 +43,11 @@ export default async function AdminDashboardPage() {
       .select("id", { count: "exact", head: true })
       .eq("status", "HIDDEN"),
     supabase
+      .from("banner_ads")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "PUBLISHED"),
+    supabase.from("banner_ads").select("id", { count: "exact", head: true }).eq("status", "HIDDEN"),
+    supabase
       .from("directory_listings")
       .select("id, name, category, created_at")
       .order("created_at", { ascending: false })
@@ -61,7 +68,8 @@ export default async function AdminDashboardPage() {
     (listingsHidden.count ?? 0) +
     (newsHidden.count ?? 0) +
     (eventsHidden.count ?? 0) +
-    (communityHidden.count ?? 0);
+    (communityHidden.count ?? 0) +
+    (bannerAdsHidden.count ?? 0);
 
   const statCards = [
     {
@@ -88,12 +96,19 @@ export default async function AdminDashboardPage() {
       href: "/directory/admin/community",
       Icon: MessageCircle,
     },
+    {
+      label: "게시중 광고 배너",
+      value: bannerAdsActive.count ?? 0,
+      href: "/directory/admin/ads",
+      Icon: Megaphone,
+    },
   ];
 
   const quickActions = [
     { label: "새 소식 등록", href: "/directory/admin/news/new" },
     { label: "새 행사 등록", href: "/directory/admin/events/new" },
     { label: "새 업체 등록", href: "/directory/admin/listings/new" },
+    { label: "새 배너 등록", href: "/directory/admin/ads/new" },
   ];
 
   return (
@@ -105,7 +120,7 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {statCards.map(({ label, value, href, Icon }) => (
           <Link
             key={label}
