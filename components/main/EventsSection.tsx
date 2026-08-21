@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
+import { ArrowRight, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { formatEventDateRange } from "@/lib/utils/event-date";
+import { formatEventDateBadge } from "@/lib/utils/event-date";
 
 export async function EventsSection() {
   const supabase = await createClient();
@@ -43,7 +43,7 @@ export async function EventsSection() {
                 href={`/events/${event.id}`}
                 className="flex items-center gap-4 px-5 py-4 hover:bg-muted"
               >
-                <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                   {event.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -57,18 +57,18 @@ export async function EventsSection() {
                     </div>
                   )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-foreground">{event.title}</p>
-                  <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
-                    <span>{formatEventDateRange(event.start_at, event.end_at)}</span>
-                    {event.location ? (
-                      <span className="flex items-center gap-1 truncate">
-                        <span aria-hidden>·</span>
-                        <MapPin className="size-3.5 shrink-0" aria-hidden />
-                        <span className="truncate">{event.location}</span>
-                      </span>
-                    ) : null}
-                  </p>
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
+                      {formatEventDateBadge(event.start_at)}
+                    </span>
+                    <span className="truncate font-medium text-foreground">{event.title}</span>
+                  </div>
+                  {event.location ? (
+                    <span className="min-w-0 max-w-[45%] truncate text-sm text-muted-foreground">
+                      {event.location}
+                    </span>
+                  ) : null}
                 </div>
               </Link>
             </li>

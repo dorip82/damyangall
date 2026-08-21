@@ -19,3 +19,9 @@ export function formatEventDateRange(startAt: string, endAt: string | null): str
     : end.toLocaleString("ko-KR", DATE_FORMAT);
   return `${startLabel} ~ ${endLabel}`;
 }
+
+/** Compact "8.26" form for tight list rows (main-page widget) where the full range is too long. */
+export function formatEventDateBadge(startAt: string): string {
+  const start = new Date(startAt);
+  return `${start.getMonth() + 1}.${start.getDate()}`;
+}
