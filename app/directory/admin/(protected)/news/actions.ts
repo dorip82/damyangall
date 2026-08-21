@@ -6,6 +6,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireSuperAdmin } from "@/lib/auth/require-super-admin";
 import { NEWS_CATEGORIES } from "@/lib/news/categories";
+import { runNewsFetch, type NewsFetchResult } from "@/lib/news-scraper/run";
 
 const CATEGORY_VALUES = NEWS_CATEGORIES.map((c) => c.value) as [string, ...string[]];
 
@@ -127,4 +128,19 @@ export async function toggleNewsStatus(newsId: string, nextStatus: "PUBLISHED" |
   revalidatePath(`/news/${newsId}`);
   revalidatePath("/");
   revalidatePath("/directory/admin/news");
+}
+
+/**
+ * Manual "지금 수집하기" trigger — same underlying scrape as the daily
+ * cron (see app/api/cron/fetch-news), just gated by requireSuperAdmin
+ * instead of CRON_SECRET so an admin can run it on demand.
+ */
+export async function triggerNewsFetch(): Promise<NewsFetchResult[]> {
+  await requireSuperAdmin();
+  const results = await runNewsFetch();
+
+  revalidatePath("/news");
+  revalidatePath("/");
+  revalidatePath("/directory/admin/news");
+  return results;
 }

@@ -3,10 +3,12 @@ import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { NEWS_CATEGORIES, getNewsCategoryLabel } from "@/lib/news/categories";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
 import { FilterPills } from "@/components/admin/FilterPills";
 import { AdminPagination } from "@/components/admin/AdminPagination";
 import { StatusToggleBadge } from "@/components/admin/StatusToggleBadge";
+import { FetchNewsButton } from "@/components/admin/FetchNewsButton";
 import { toggleNewsStatus } from "@/app/directory/admin/(protected)/news/actions";
 import type { NewsCategory } from "@/types/database";
 
@@ -39,7 +41,9 @@ export default async function AdminNewsListPage({
   const supabase = await createClient();
   let query = supabase
     .from("news")
-    .select("id, category, title, status, created_at", { count: "exact" })
+    .select("id, category, title, status, created_at, source_type, source_name", {
+      count: "exact",
+    })
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
   if (status === "PUBLISHED" || status === "HIDDEN") query = query.eq("status", status);
@@ -57,9 +61,12 @@ export default async function AdminNewsListPage({
           <h1 className="text-xl font-bold text-foreground">담양소식</h1>
           <p className="mt-1 text-sm text-muted-foreground">전체 {count ?? 0}건</p>
         </div>
-        <Button render={<Link href="/directory/admin/news/new" />}>
-          <Plus className="size-4" /> 새 소식 등록
-        </Button>
+        <div className="flex gap-2">
+          <FetchNewsButton />
+          <Button render={<Link href="/directory/admin/news/new" />}>
+            <Plus className="size-4" /> 새 소식 등록
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -92,7 +99,14 @@ export default async function AdminNewsListPage({
               className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted"
             >
               <Link href={`/directory/admin/news/${news.id}`} className="min-w-0 flex-1">
-                <p className="font-medium text-foreground">{news.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate font-medium text-foreground">{news.title}</p>
+                  {news.source_type === "EXTERNAL" ? (
+                    <Badge variant="secondary" className="shrink-0">
+                      {news.source_name ?? "자동수집"}
+                    </Badge>
+                  ) : null}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {getNewsCategoryLabel(news.category)} ·{" "}
                   {new Date(news.created_at).toLocaleDateString("ko-KR")}

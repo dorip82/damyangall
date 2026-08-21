@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getNewsCategoryLabel } from "@/lib/news/categories";
+import { isSafeHttpUrl } from "@/lib/utils/safe-url";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
 import type { NewsRow } from "@/types/news";
@@ -66,9 +67,23 @@ export default async function NewsDetailPage({
             <p className="mt-4 text-base font-medium text-foreground/90">{news.summary}</p>
           ) : null}
 
-          <p className="mt-4 whitespace-pre-line border-t border-border pt-6 text-base leading-relaxed text-foreground/80">
-            {news.content}
-          </p>
+          {news.source_type === "EXTERNAL" ? (
+            isSafeHttpUrl(news.source_url) ? (
+              <a
+                href={news.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 flex w-fit items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground hover:border-accent hover:text-accent"
+              >
+                <ExternalLink className="size-4" aria-hidden />
+                {news.source_name ?? "원문"}에서 전체 기사 보기
+              </a>
+            ) : null
+          ) : (
+            <p className="mt-4 whitespace-pre-line border-t border-border pt-6 text-base leading-relaxed text-foreground/80">
+              {news.content}
+            </p>
+          )}
         </article>
       </main>
       <PortalFooter />

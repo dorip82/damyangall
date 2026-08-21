@@ -62,6 +62,7 @@ export type CommunityPostStatus = "PUBLISHED" | "HIDDEN";
 export type EventStatus = "PUBLISHED" | "HIDDEN";
 export type NewsCategory = "LOCAL" | "LIFE" | "REPORT";
 export type NewsStatus = "PUBLISHED" | "HIDDEN";
+export type NewsSourceType = "ADMIN" | "EXTERNAL";
 export type BannerAdPosition = "LEFT" | "RIGHT";
 export type BannerAdStatus = "PUBLISHED" | "HIDDEN";
 
@@ -405,6 +406,9 @@ export interface Database {
           summary: string | null;
           content: string;
           thumbnail_url: string | null;
+          source_type: NewsSourceType;
+          source_name: string | null;
+          source_url: string | null;
           status: NewsStatus;
           created_at: string;
           updated_at: string;
@@ -461,6 +465,7 @@ export interface Database {
       event_status: EventStatus;
       news_category: NewsCategory;
       news_status: NewsStatus;
+      news_source_type: NewsSourceType;
       banner_ad_position: BannerAdPosition;
       banner_ad_status: BannerAdStatus;
     };

@@ -26,7 +26,10 @@ export default async function NewsPage({
   const from = (page - 1) * PAGE_SIZE;
   let query = supabase
     .from("news")
-    .select("id, category, title, summary, thumbnail_url, created_at", { count: "exact" })
+    .select(
+      "id, category, title, summary, thumbnail_url, created_at, source_type, source_name",
+      { count: "exact" }
+    )
     .eq("status", "PUBLISHED")
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
@@ -107,6 +110,9 @@ export default async function NewsPage({
                       </p>
                     ) : null}
                     <p className="mt-2 text-xs text-muted-foreground">
+                      {news.source_type === "EXTERNAL" && news.source_name
+                        ? `${news.source_name} · `
+                        : null}
                       {new Date(news.created_at).toLocaleDateString("ko-KR")}
                     </p>
                   </div>
