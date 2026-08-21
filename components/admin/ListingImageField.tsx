@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { proxiedImageSrc } from "@/lib/utils/image-proxy";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -65,8 +66,11 @@ export function ListingImageField({
       <input type="hidden" name={name} value={url} />
 
       {url ? (
+        // A URL typed/stored here (e.g. a scraped news thumbnail) may be
+        // plain http — proxiedImageSrc no-ops on https, so this is safe for
+        // every other caller's own https-only uploads too.
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" className={previewClassName} />
+        <img src={proxiedImageSrc(url)!} alt="" className={previewClassName} />
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2">

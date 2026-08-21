@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { NEWS_CATEGORIES, getNewsCategoryLabel } from "@/lib/news/categories";
+import { proxiedImageSrc } from "@/lib/utils/image-proxy";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
 import type { NewsCategory } from "@/types/database";
@@ -89,7 +90,7 @@ export default async function NewsPage({
                     {news.thumbnail_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={news.thumbnail_url}
+                        src={proxiedImageSrc(news.thumbnail_url)!}
                         alt=""
                         className="h-full w-full object-cover"
                       />

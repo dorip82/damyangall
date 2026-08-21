@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getNewsCategoryLabel } from "@/lib/news/categories";
 import { isSafeHttpUrl } from "@/lib/utils/safe-url";
+import { proxiedImageSrc } from "@/lib/utils/image-proxy";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
 import type { NewsRow } from "@/types/news";
@@ -44,7 +45,7 @@ export default async function NewsDetailPage({
               // Full image, no forced crop.
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={news.thumbnail_url}
+                src={proxiedImageSrc(news.thumbnail_url)!}
                 alt=""
                 className="w-full rounded-2xl border border-border"
               />

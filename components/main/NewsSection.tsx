@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Newspaper } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getNewsCategoryLabel } from "@/lib/news/categories";
+import { proxiedImageSrc } from "@/lib/utils/image-proxy";
 
 export async function NewsSection() {
   const supabase = await createClient();
@@ -46,7 +47,7 @@ export async function NewsSection() {
                   {news.thumbnail_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={news.thumbnail_url}
+                      src={proxiedImageSrc(news.thumbnail_url)!}
                       alt=""
                       className="h-full w-full object-cover"
                     />
