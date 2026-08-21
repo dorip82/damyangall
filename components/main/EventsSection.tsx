@@ -5,11 +5,16 @@ import { formatEventDateBadge } from "@/lib/utils/event-date";
 
 export async function EventsSection() {
   const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+  // "Not finished yet" (end_at, falling back to start_at when there's no
+  // end_at) rather than "hasn't started" — otherwise a still-running
+  // multi-day exhibition would drop off the homepage once its start date
+  // passed, even though it's still on.
   const { data: events } = await supabase
     .from("events")
     .select("id, title, location, start_at, end_at, image_url")
     .eq("status", "PUBLISHED")
-    .gte("start_at", new Date().toISOString())
+    .or(`end_at.gte.${nowIso},and(end_at.is.null,start_at.gte.${nowIso})`)
     .order("start_at", { ascending: true })
     .limit(5);
 

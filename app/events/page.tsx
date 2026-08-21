@@ -12,18 +12,22 @@ export default async function EventsPage() {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();
 
+  // A multi-day event (e.g. a months-long exhibition) is still ongoing as
+  // long as its end_at hasn't passed, even though its start_at has — so
+  // "upcoming" here means "hasn't finished yet" (end_at, falling back to
+  // start_at when there's no end_at), not just "hasn't started yet".
   const [{ data: upcoming }, { data: past }] = await Promise.all([
     supabase
       .from("events")
       .select("id, title, description, location, start_at, end_at, image_url")
       .eq("status", "PUBLISHED")
-      .gte("start_at", nowIso)
+      .or(`end_at.gte.${nowIso},and(end_at.is.null,start_at.gte.${nowIso})`)
       .order("start_at", { ascending: true }),
     supabase
       .from("events")
       .select("id, title, description, location, start_at, end_at, image_url")
       .eq("status", "PUBLISHED")
-      .lt("start_at", nowIso)
+      .or(`end_at.lt.${nowIso},and(end_at.is.null,start_at.lt.${nowIso})`)
       .order("start_at", { ascending: false })
       .limit(20),
   ]);
