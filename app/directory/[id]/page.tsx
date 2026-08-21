@@ -46,16 +46,17 @@ export default async function DirectoryListingPage({
             목록으로
           </Link>
 
-          <div className="relative mb-6 aspect-video w-full">
+          <div className="relative mb-6 w-full">
             {listing.image_url ? (
+              // Full image, no forced crop — a business photo can be any shape.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={listing.image_url}
                 alt=""
-                className="h-full w-full rounded-2xl object-cover"
+                className="w-full rounded-2xl border border-border"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
+              <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
                 사진 준비중
               </div>
             )}

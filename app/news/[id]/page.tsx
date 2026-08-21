@@ -38,16 +38,17 @@ export default async function NewsDetailPage({
             목록으로
           </Link>
 
-          <div className="mb-6 aspect-video w-full">
+          <div className="mb-6 w-full">
             {news.thumbnail_url ? (
+              // Full image, no forced crop.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={news.thumbnail_url}
                 alt=""
-                className="h-full w-full rounded-2xl object-cover"
+                className="w-full rounded-2xl border border-border"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
+              <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
                 사진 준비중
               </div>
             )}

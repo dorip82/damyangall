@@ -52,11 +52,12 @@ export default async function CommunityPostDetailPage({
           </p>
           {post.image_url ? (
             <div className="mt-6">
+              {/* Full image, no forced crop. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={post.image_url}
                 alt=""
-                className="max-h-[32rem] w-full rounded-2xl border border-border object-cover"
+                className="w-full rounded-2xl border border-border"
               />
             </div>
           ) : null}

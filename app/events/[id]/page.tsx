@@ -84,16 +84,18 @@ export default async function EventDetailPage({
             </dl>
           ) : null}
 
-          <div className="mt-6 aspect-video w-full">
+          <div className="mt-6 w-full">
             {event.image_url ? (
+              // Full poster image, no forced crop — event flyers are often
+              // portrait-oriented and shouldn't lose their top/bottom.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={event.image_url}
                 alt=""
-                className="h-full w-full rounded-2xl object-cover"
+                className="w-full rounded-2xl border border-border"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
+              <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">
                 사진 준비중
               </div>
             )}
