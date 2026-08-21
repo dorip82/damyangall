@@ -89,63 +89,95 @@ async function collectFromSource(
  * land in 담양소식.
  */
 export async function runNewsFetch(): Promise<NewsFetchResult[]> {
-  const supabase = createAdminClient();
-  const now = new Date();
-
-  const { data: existingRows } = await supabase
-    .from("news")
-    .select("source_url")
-    .not("source_url", "is", null);
-  const knownUrls = new Set((existingRows ?? []).map((r) => r.source_url));
-
-  const collected = await Promise.all(
-    NEWS_SOURCES.map((source) => collectFromSource(source, knownUrls, now))
-  );
-
-  const deduped: StagedArticle[] = [];
-  const dedupSkippedCount = new Map<string, number>();
-  for (const { source, staged } of collected) {
-    let skipped = 0;
-    for (const item of staged) {
-      if (deduped.some((existing) => isSimilarTitle(existing.title, item.title))) {
-        skipped++;
-        continue;
-      }
-      deduped.push(item);
-    }
-    dedupSkippedCount.set(source.name, skipped);
+  // This is the only runtime path that touches the service-role client —
+  // if SUPABASE_SERVICE_ROLE_KEY is missing/malformed on a given
+  // deployment, everything else in the app (which only ever uses the
+  // session-scoped client) keeps working fine and this is the one thing
+  // that breaks, so surface that clearly instead of letting the route
+  // handler / Server Action crash with an opaque 500.
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return [
+      {
+        source: "전체",
+        found: 0,
+        inserted: 0,
+        skipped: 0,
+        error: "서버에 SUPABASE_SERVICE_ROLE_KEY가 설정되어 있지 않습니다.",
+      },
+    ];
   }
 
-  let insertedUrls = new Set<string>();
-  if (deduped.length) {
-    const { data } = await supabase
+  try {
+    const supabase = createAdminClient();
+    const now = new Date();
+
+    const { data: existingRows, error: existingRowsError } = await supabase
       .from("news")
-      .upsert(
-        deduped.map((item) => ({
-          category: "LOCAL" as const,
-          title: item.title,
-          summary: item.summary || null,
-          content: item.content,
-          thumbnail_url: item.thumbnailUrl,
-          source_type: "EXTERNAL" as const,
-          source_name: item.sourceName,
-          source_url: item.sourceUrl,
-          status: "PUBLISHED" as const,
-        })),
-        { onConflict: "source_url", ignoreDuplicates: true }
-      )
-      .select("source_url");
-    insertedUrls = new Set((data ?? []).map((r) => r.source_url as string));
-  }
+      .select("source_url")
+      .not("source_url", "is", null);
+    if (existingRowsError) throw existingRowsError;
+    const knownUrls = new Set((existingRows ?? []).map((r) => r.source_url));
 
-  return collected.map(({ source, staged, found, error }) => {
-    const inserted = staged.filter((s) => insertedUrls.has(s.sourceUrl)).length;
-    return {
-      source: source.name,
-      found,
-      inserted,
-      skipped: found - inserted,
-      error,
-    };
-  });
+    const collected = await Promise.all(
+      NEWS_SOURCES.map((source) => collectFromSource(source, knownUrls, now))
+    );
+
+    const deduped: StagedArticle[] = [];
+    const dedupSkippedCount = new Map<string, number>();
+    for (const { source, staged } of collected) {
+      let skipped = 0;
+      for (const item of staged) {
+        if (deduped.some((existing) => isSimilarTitle(existing.title, item.title))) {
+          skipped++;
+          continue;
+        }
+        deduped.push(item);
+      }
+      dedupSkippedCount.set(source.name, skipped);
+    }
+
+    let insertedUrls = new Set<string>();
+    if (deduped.length) {
+      const { data, error: upsertError } = await supabase
+        .from("news")
+        .upsert(
+          deduped.map((item) => ({
+            category: "LOCAL" as const,
+            title: item.title,
+            summary: item.summary || null,
+            content: item.content,
+            thumbnail_url: item.thumbnailUrl,
+            source_type: "EXTERNAL" as const,
+            source_name: item.sourceName,
+            source_url: item.sourceUrl,
+            status: "PUBLISHED" as const,
+          })),
+          { onConflict: "source_url", ignoreDuplicates: true }
+        )
+        .select("source_url");
+      if (upsertError) throw upsertError;
+      insertedUrls = new Set((data ?? []).map((r) => r.source_url as string));
+    }
+
+    return collected.map(({ source, staged, found, error }) => {
+      const inserted = staged.filter((s) => insertedUrls.has(s.sourceUrl)).length;
+      return {
+        source: source.name,
+        found,
+        inserted,
+        skipped: found - inserted,
+        error,
+      };
+    });
+  } catch (error) {
+    return [
+      {
+        source: "전체",
+        found: 0,
+        inserted: 0,
+        skipped: 0,
+        error: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+      },
+    ];
+  }
 }

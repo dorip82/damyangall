@@ -22,7 +22,7 @@ export function FetchNewsButton() {
             .join(", ")})`
         );
       } else if (failed.length) {
-        toast.error(`일부 사이트에서 오류가 발생했습니다: ${failed.map((r) => r.source).join(", ")}`);
+        toast.error(failed.map((r) => `${r.source}: ${r.error}`).join(" / "));
       } else {
         toast.info("오늘 새로 올라온 담양 소식이 없습니다.");
       }
