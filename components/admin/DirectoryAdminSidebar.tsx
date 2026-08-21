@@ -9,7 +9,7 @@ import {
   Megaphone,
 } from "lucide-react";
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: "/directory/admin", label: "대시보드", Icon: LayoutDashboard },
   { href: "/directory/admin/main", label: "메인 페이지", Icon: Home },
   { href: "/directory/admin/listings", label: "업체(지역정보)", Icon: Store },

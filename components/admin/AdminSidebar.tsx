@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LayoutDashboard, Settings, FileText, Newspaper, MessageCircle, User } from "lucide-react";
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: "/admin", label: "대시보드", Icon: LayoutDashboard },
   { href: "/admin/site-info", label: "사이트 정보", Icon: Settings },
   { href: "/admin/pages", label: "페이지", Icon: FileText },
