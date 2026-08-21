@@ -88,6 +88,22 @@ export function EventForm({
         <Input id="location" name="location" defaultValue={event?.location ?? ""} />
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="organizer">주최/주관</Label>
+          <Input id="organizer" name="organizer" defaultValue={event?.organizer ?? ""} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="contact">문의처</Label>
+          <Input
+            id="contact"
+            name="contact"
+            placeholder="전화번호 또는 담당 부서"
+            defaultValue={event?.contact ?? ""}
+          />
+        </div>
+      </div>
+
       <ListingImageField defaultValue={event?.image_url} />
 
       <div className="space-y-2">

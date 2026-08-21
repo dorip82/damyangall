@@ -13,6 +13,8 @@ const eventSchema = z.object({
   startAt: z.string().min(1, "시작 일시를 입력해주세요"),
   endAt: z.string().optional(),
   imageUrl: z.string().optional(),
+  organizer: z.string().optional(),
+  contact: z.string().optional(),
   status: z.enum(["PUBLISHED", "HIDDEN"]),
 });
 
@@ -38,6 +40,8 @@ export async function createEvent(
     startAt: formData.get("startAt"),
     endAt: formData.get("endAt"),
     imageUrl: formData.get("imageUrl"),
+    organizer: formData.get("organizer"),
+    contact: formData.get("contact"),
     status: formData.get("status"),
   });
   if (!parsed.success) {
@@ -59,6 +63,8 @@ export async function createEvent(
       start_at: startAtIso,
       end_at: toIso(values.endAt),
       image_url: values.imageUrl || null,
+      organizer: values.organizer || null,
+      contact: values.contact || null,
       status: values.status,
     })
     .select("id")
@@ -84,6 +90,8 @@ export async function updateEvent(
     startAt: formData.get("startAt"),
     endAt: formData.get("endAt"),
     imageUrl: formData.get("imageUrl"),
+    organizer: formData.get("organizer"),
+    contact: formData.get("contact"),
     status: formData.get("status"),
   });
   if (!parsed.success) {
@@ -105,6 +113,8 @@ export async function updateEvent(
       start_at: startAtIso,
       end_at: toIso(values.endAt),
       image_url: values.imageUrl || null,
+      organizer: values.organizer || null,
+      contact: values.contact || null,
       status: values.status,
     })
     .eq("id", eventId);

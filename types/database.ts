@@ -358,6 +358,8 @@ export interface Database {
           start_at: string;
           end_at: string | null;
           image_url: string | null;
+          organizer: string | null;
+          contact: string | null;
           status: EventStatus;
           created_at: string;
           updated_at: string;
