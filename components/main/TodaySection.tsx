@@ -1,5 +1,6 @@
-import { CalendarDays, Newspaper, MessageCircle, Store } from "lucide-react";
+import { CalendarDays, Newspaper, MessageCircle, Store, Sun, CloudRain, Snowflake, Droplets } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentWeather } from "@/lib/weather/get-current-weather";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -10,7 +11,8 @@ export async function TodaySection() {
   const weekAgo = new Date(now.getTime() - 7 * DAY_MS).toISOString();
   const weekAhead = new Date(now.getTime() + 7 * DAY_MS).toISOString();
 
-  const [upcomingEvents, weeklyNews, todaysCommunityPosts, totalListings] = await Promise.all([
+  const [weather, upcomingEvents, weeklyNews, todaysCommunityPosts, totalListings] = await Promise.all([
+    getCurrentWeather(),
     supabase
       .from("events")
       .select("id", { count: "exact", head: true })
@@ -56,12 +58,35 @@ export async function TodaySection() {
     },
   ];
 
+  const WeatherIcon = weather?.isSnow ? Snowflake : weather?.isRain ? CloudRain : Sun;
+
   return (
     <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-5">
       <div className="mb-4">
         <p className="font-semibold text-foreground">오늘의 담양</p>
         <p className="text-sm text-muted-foreground">지금 담양에서 무슨 일이 있는지 한눈에 확인해보세요.</p>
       </div>
+
+      {weather ? (
+        <div className="mb-3 flex items-center gap-4 rounded-xl border border-border bg-background px-4 py-4">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+            <WeatherIcon className="size-6" aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <p className="text-2xl font-bold text-foreground">
+                {Math.round(weather.temperatureC)}°C
+              </p>
+              <p className="text-sm text-muted-foreground">{weather.conditionLabel}</p>
+            </div>
+            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+              <Droplets className="size-3.5" aria-hidden />
+              습도 {weather.humidityPercent}%
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-3">
         {stats.map(({ label, value, Icon }) => (
           <div
