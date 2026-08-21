@@ -11,6 +11,8 @@ const settingsSchema = z.object({
   adBannerVisible: z.boolean(),
   adBannerTitle: z.string().trim().min(1).max(50),
   adBannerDescription: z.string().trim().min(1).max(200),
+  footerTitle: z.string().trim().min(1, "푸터 제목을 입력해주세요").max(50),
+  footerDescription: z.string().trim().min(1, "푸터 설명을 입력해주세요").max(300),
 });
 
 export interface MainSettingsFormState {
@@ -28,6 +30,8 @@ export async function updateMainPageSettings(
     adBannerVisible: formData.get("adBannerVisible") === "on",
     adBannerTitle: formData.get("adBannerTitle"),
     adBannerDescription: formData.get("adBannerDescription"),
+    footerTitle: formData.get("footerTitle"),
+    footerDescription: formData.get("footerDescription"),
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
@@ -45,12 +49,17 @@ export async function updateMainPageSettings(
       ad_banner_visible: values.adBannerVisible,
       ad_banner_title: values.adBannerTitle,
       ad_banner_description: values.adBannerDescription,
+      footer_title: values.footerTitle,
+      footer_description: values.footerDescription,
     })
     .eq("id", 1);
 
   if (error) return { ok: false, error: "저장 중 오류가 발생했습니다." };
 
-  revalidatePath("/");
+  // PortalFooter renders on every public page (community/directory/events/
+  // login/news/search/signup, not just "/"), so revalidate the whole tree
+  // that shares the root layout instead of just the home page.
+  revalidatePath("/", "layout");
   revalidatePath("/directory/admin/main");
   return { ok: true };
 }

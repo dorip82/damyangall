@@ -386,6 +386,8 @@ export interface Database {
           ad_banner_visible: boolean;
           ad_banner_title: string;
           ad_banner_description: string;
+          footer_title: string;
+          footer_description: string;
           updated_at: string;
         };
         Insert: Partial<

@@ -15,6 +15,9 @@ const DEFAULT_SETTINGS: MainPageSettings = {
   ad_banner_visible: true,
   ad_banner_title: "광고",
   ad_banner_description: "담양의 기업·소상공인을 위한 광고 공간이 마련됩니다.",
+  footer_title: "올담",
+  footer_description:
+    "담양의 모든 이야기를 담다. 담양군민, 동아리·동호회, 기업·소상공인, 기관·단체가 함께 만들어가는 지역 통합 플랫폼입니다.",
   updated_at: new Date(0).toISOString(),
 };
 

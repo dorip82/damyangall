@@ -80,6 +80,34 @@ export function MainPageSettingsForm({ settings }: { settings: MainPageSettings 
         </div>
       </fieldset>
 
+      <fieldset className="space-y-3 rounded-2xl border border-border p-4">
+        <legend className="text-sm font-semibold text-foreground">
+          푸터 (모든 페이지 하단에 표시)
+        </legend>
+        <div className="space-y-2">
+          <Label htmlFor="footerTitle">제목</Label>
+          <Input
+            id="footerTitle"
+            name="footerTitle"
+            defaultValue={settings.footer_title}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="footerDescription">설명</Label>
+          <Textarea
+            id="footerDescription"
+            name="footerDescription"
+            rows={3}
+            defaultValue={settings.footer_description}
+            required
+          />
+          <p className="text-xs text-muted-foreground">
+            저작권 표시(© {new Date().getFullYear()} ...)에도 위 제목이 함께 쓰입니다.
+          </p>
+        </div>
+      </fieldset>
+
       <Button type="submit" disabled={pending}>
         {pending ? "저장 중..." : "저장"}
       </Button>
