@@ -57,16 +57,16 @@ export async function NewsSection() {
                     </div>
                   )}
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
                       {getNewsCategoryLabel(news.category)}
                     </span>
                     <span className="truncate font-medium text-foreground">{news.title}</span>
                   </div>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
+                  <span className="shrink-0 text-sm text-muted-foreground">
                     {new Date(news.created_at).toLocaleDateString("ko-KR")}
-                  </p>
+                  </span>
                 </div>
               </Link>
             </li>
