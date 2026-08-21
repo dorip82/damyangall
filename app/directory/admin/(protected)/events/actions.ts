@@ -129,3 +129,17 @@ export async function deleteEvent(eventId: string) {
   revalidatePath("/directory/admin/events");
   redirect("/directory/admin/events");
 }
+
+export async function toggleEventStatus(
+  eventId: string,
+  nextStatus: "PUBLISHED" | "HIDDEN"
+) {
+  await requireSuperAdmin();
+  const supabase = await createClient();
+  await supabase.from("events").update({ status: nextStatus }).eq("id", eventId);
+
+  revalidatePath("/events");
+  revalidatePath(`/events/${eventId}`);
+  revalidatePath("/");
+  revalidatePath("/directory/admin/events");
+}

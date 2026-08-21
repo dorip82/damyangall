@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ListingForm } from "@/components/admin/ListingForm";
 import { DeleteListingButton } from "@/components/admin/DeleteListingButton";
-import { updateListing } from "@/app/directory/admin/(protected)/actions";
+import { updateListing } from "@/app/directory/admin/(protected)/listings/actions";
 import type { DirectoryListing } from "@/types/directory";
 
 export default async function EditListingPage({

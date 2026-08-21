@@ -12,56 +12,6 @@ import type { MainPageSettings } from "@/types/main-settings";
 
 const initialState: MainSettingsFormState = { ok: false };
 
-function BannerFields({
-  prefix,
-  legend,
-  visible,
-  title,
-  description,
-}: {
-  prefix: "news" | "today" | "ad";
-  legend: string;
-  visible: boolean;
-  title: string;
-  description: string;
-}) {
-  return (
-    <fieldset className="space-y-3 rounded-2xl border border-border p-4">
-      <div className="flex items-center justify-between">
-        <legend className="text-sm font-semibold text-foreground">{legend}</legend>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            name={`${prefix}BannerVisible`}
-            defaultChecked={visible}
-            className="size-4 rounded border-border accent-accent"
-          />
-          메인에 노출
-        </label>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor={`${prefix}BannerTitle`}>제목</Label>
-        <Input
-          id={`${prefix}BannerTitle`}
-          name={`${prefix}BannerTitle`}
-          defaultValue={title}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor={`${prefix}BannerDescription`}>설명</Label>
-        <Textarea
-          id={`${prefix}BannerDescription`}
-          name={`${prefix}BannerDescription`}
-          rows={2}
-          defaultValue={description}
-          required
-        />
-      </div>
-    </fieldset>
-  );
-}
-
 export function MainPageSettingsForm({ settings }: { settings: MainPageSettings }) {
   const [state, formAction, pending] = useActionState(updateMainPageSettings, initialState);
 
@@ -96,27 +46,39 @@ export function MainPageSettingsForm({ settings }: { settings: MainPageSettings 
         </div>
       </fieldset>
 
-      <BannerFields
-        prefix="news"
-        legend="담양소식 배너"
-        visible={settings.news_banner_visible}
-        title={settings.news_banner_title}
-        description={settings.news_banner_description}
-      />
-      <BannerFields
-        prefix="today"
-        legend="오늘의 담양 배너"
-        visible={settings.today_banner_visible}
-        title={settings.today_banner_title}
-        description={settings.today_banner_description}
-      />
-      <BannerFields
-        prefix="ad"
-        legend="광고 배너"
-        visible={settings.ad_banner_visible}
-        title={settings.ad_banner_title}
-        description={settings.ad_banner_description}
-      />
+      <fieldset className="space-y-3 rounded-2xl border border-border p-4">
+        <div className="flex items-center justify-between">
+          <legend className="text-sm font-semibold text-foreground">광고 배너</legend>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              name="adBannerVisible"
+              defaultChecked={settings.ad_banner_visible}
+              className="size-4 rounded border-border accent-accent"
+            />
+            메인에 노출
+          </label>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="adBannerTitle">제목</Label>
+          <Input
+            id="adBannerTitle"
+            name="adBannerTitle"
+            defaultValue={settings.ad_banner_title}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="adBannerDescription">설명</Label>
+          <Textarea
+            id="adBannerDescription"
+            name="adBannerDescription"
+            rows={2}
+            defaultValue={settings.ad_banner_description}
+            required
+          />
+        </div>
+      </fieldset>
 
       <Button type="submit" disabled={pending}>
         {pending ? "저장 중..." : "저장"}

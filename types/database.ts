@@ -60,6 +60,8 @@ export type CommunityCategory =
   | "REPORT";
 export type CommunityPostStatus = "PUBLISHED" | "HIDDEN";
 export type EventStatus = "PUBLISHED" | "HIDDEN";
+export type NewsCategory = "LOCAL" | "LIFE" | "REPORT";
+export type NewsStatus = "PUBLISHED" | "HIDDEN";
 
 export interface Database {
   public: {
@@ -387,6 +389,25 @@ export interface Database {
         >;
         Relationships: [];
       };
+      news: {
+        Row: {
+          id: string;
+          category: NewsCategory;
+          title: string;
+          summary: string | null;
+          content: string;
+          thumbnail_url: string | null;
+          status: NewsStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["news"]["Row"]> & {
+          title: string;
+          content: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["news"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -410,6 +431,8 @@ export interface Database {
       community_category: CommunityCategory;
       community_post_status: CommunityPostStatus;
       event_status: EventStatus;
+      news_category: NewsCategory;
+      news_status: NewsStatus;
     };
   };
 }

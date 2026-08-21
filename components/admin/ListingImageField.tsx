@@ -10,7 +10,15 @@ import { Upload } from "lucide-react";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export function ListingImageField({ defaultValue }: { defaultValue?: string | null }) {
+export function ListingImageField({
+  defaultValue,
+  name = "imageUrl",
+  label = "사진",
+}: {
+  defaultValue?: string | null;
+  name?: string;
+  label?: string;
+}) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,8 +59,8 @@ export function ListingImageField({ defaultValue }: { defaultValue?: string | nu
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="imageUrl">사진</Label>
-      <input type="hidden" name="imageUrl" value={url} />
+      <Label htmlFor={name}>{label}</Label>
+      <input type="hidden" name={name} value={url} />
 
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -65,7 +73,7 @@ export function ListingImageField({ defaultValue }: { defaultValue?: string | nu
 
       <div className="flex flex-wrap items-center gap-2">
         <Input
-          id="imageUrl"
+          id={name}
           placeholder="https://... 또는 아래에서 파일 업로드"
           value={url}
           onChange={(e) => setUrl(e.target.value)}

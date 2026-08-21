@@ -3,15 +3,15 @@
 import { useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { deleteListing } from "@/app/directory/admin/(protected)/listings/actions";
+import { deleteNews } from "@/app/directory/admin/(protected)/news/actions";
 
-export function DeleteListingButton({ listingId }: { listingId: string }) {
+export function DeleteNewsButton({ newsId }: { newsId: string }) {
   const [pending, startTransition] = useTransition();
 
   function handleDelete() {
-    if (!confirm("이 업체 정보를 삭제하시겠습니까?")) return;
+    if (!confirm("이 소식을 삭제하시겠습니까?")) return;
     startTransition(() => {
-      deleteListing(listingId);
+      deleteNews(newsId);
     });
   }
 

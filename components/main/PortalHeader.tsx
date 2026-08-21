@@ -32,6 +32,12 @@ export async function PortalHeader() {
 
         <nav className="ml-8 hidden items-center gap-6 sm:flex">
           <Link
+            href="/news"
+            className="text-sm font-medium text-foreground/80 hover:text-primary"
+          >
+            담양소식
+          </Link>
+          <Link
             href="/directory"
             className="text-sm font-medium text-foreground/80 hover:text-primary"
           >

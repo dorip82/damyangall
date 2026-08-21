@@ -68,8 +68,8 @@ export async function createListing(
   if (error || !listing) return { ok: false, error: "저장 중 오류가 발생했습니다." };
 
   revalidatePath("/directory");
-  revalidatePath("/directory/admin");
-  redirect("/directory/admin");
+  revalidatePath("/directory/admin/listings");
+  redirect("/directory/admin/listings");
 }
 
 export async function updateListing(
@@ -113,9 +113,9 @@ export async function updateListing(
 
   revalidatePath("/directory");
   revalidatePath(`/directory/${listingId}`);
-  revalidatePath("/directory/admin");
-  revalidatePath(`/directory/admin/${listingId}`);
-  redirect("/directory/admin");
+  revalidatePath("/directory/admin/listings");
+  revalidatePath(`/directory/admin/listings/${listingId}`);
+  redirect("/directory/admin/listings");
 }
 
 export async function deleteListing(listingId: string) {
@@ -124,6 +124,19 @@ export async function deleteListing(listingId: string) {
   await supabase.from("directory_listings").delete().eq("id", listingId);
 
   revalidatePath("/directory");
-  revalidatePath("/directory/admin");
-  redirect("/directory/admin");
+  revalidatePath("/directory/admin/listings");
+  redirect("/directory/admin/listings");
+}
+
+export async function toggleListingStatus(
+  listingId: string,
+  nextStatus: "PUBLISHED" | "HIDDEN"
+) {
+  await requireSuperAdmin();
+  const supabase = await createClient();
+  await supabase.from("directory_listings").update({ status: nextStatus }).eq("id", listingId);
+
+  revalidatePath("/directory");
+  revalidatePath(`/directory/${listingId}`);
+  revalidatePath("/directory/admin/listings");
 }

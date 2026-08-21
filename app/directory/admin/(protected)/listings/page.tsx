@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { DIRECTORY_CATEGORIES, getCategoryLabel } from "@/lib/directory/categories";
 import { Button } from "@/components/ui/button";
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
 import { FilterPills } from "@/components/admin/FilterPills";
 import { AdminPagination } from "@/components/admin/AdminPagination";
 import { StatusToggleBadge } from "@/components/admin/StatusToggleBadge";
-import { toggleEventStatus } from "@/app/directory/admin/(protected)/events/actions";
-import { formatEventDateRange } from "@/lib/utils/event-date";
+import { toggleListingStatus } from "@/app/directory/admin/(protected)/listings/actions";
+import type { DirectoryCategory } from "@/types/database";
 
 const PAGE_SIZE = 20;
 const STATUS_OPTIONS = [
@@ -22,41 +23,44 @@ function buildHref(params: Record<string, string | undefined>) {
     if (value) search.set(key, value);
   }
   const qs = search.toString();
-  return qs ? `/directory/admin/events?${qs}` : "/directory/admin/events";
+  return qs ? `/directory/admin/listings?${qs}` : "/directory/admin/listings";
 }
 
-export default async function AdminEventsListPage({
+export default async function DirectoryAdminListingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; category?: string; page?: string }>;
 }) {
-  const { q, status, page: pageParam } = await searchParams;
+  const { q, status, category, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1) || 1);
   const safeQuery = (q ?? "").replace(/[,()%*]/g, "").trim();
   const from = (page - 1) * PAGE_SIZE;
 
   const supabase = await createClient();
   let query = supabase
-    .from("events")
-    .select("id, title, status, start_at, end_at", { count: "exact" })
-    .order("start_at", { ascending: false })
+    .from("directory_listings")
+    .select("id, category, name, status, created_at", { count: "exact" })
+    .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
   if (status === "PUBLISHED" || status === "HIDDEN") query = query.eq("status", status);
-  if (safeQuery) query = query.ilike("title", `%${safeQuery}%`);
+  if (category) query = query.eq("category", category as DirectoryCategory);
+  if (safeQuery) query = query.ilike("name", `%${safeQuery}%`);
 
-  const { data: events, count } = await query;
+  const { data: listings, count } = await query;
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
-  const currentParams = { q, status };
+  const currentParams = { q, status, category };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">행사</h1>
-          <p className="mt-1 text-sm text-muted-foreground">전체 {count ?? 0}건</p>
+          <h1 className="text-xl font-bold text-foreground">업체 목록</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            전체 {count ?? 0}건
+          </p>
         </div>
-        <Button render={<Link href="/directory/admin/events/new" />}>
-          <Plus className="size-4" /> 새 행사 등록
+        <Button render={<Link href="/directory/admin/listings/new" />}>
+          <Plus className="size-4" /> 새 업체 등록
         </Button>
       </div>
 
@@ -67,31 +71,37 @@ export default async function AdminEventsListPage({
           buildHref={(v) => buildHref({ ...currentParams, status: v, page: undefined })}
         />
         <AdminSearchInput
-          action="/directory/admin/events"
+          action="/directory/admin/listings"
           defaultValue={q}
-          placeholder="행사명 검색"
-          hiddenParams={{ status }}
+          placeholder="업체명 검색"
+          hiddenParams={{ status, category }}
         />
       </div>
 
-      {!events?.length ? (
-        <p className="text-sm text-muted-foreground">조건에 맞는 행사가 없습니다.</p>
+      <FilterPills
+        options={[{ value: "", label: "전체 카테고리" }, ...DIRECTORY_CATEGORIES]}
+        active={category}
+        buildHref={(v) => buildHref({ ...currentParams, category: v, page: undefined })}
+      />
+
+      {!listings?.length ? (
+        <p className="text-sm text-muted-foreground">조건에 맞는 업체가 없습니다.</p>
       ) : (
         <ul className="divide-y divide-border rounded-md border border-border">
-          {events.map((event) => (
+          {listings.map((listing) => (
             <li
-              key={event.id}
+              key={listing.id}
               className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted"
             >
-              <Link href={`/directory/admin/events/${event.id}`} className="min-w-0 flex-1">
-                <p className="font-medium text-foreground">{event.title}</p>
+              <Link href={`/directory/admin/listings/${listing.id}`} className="min-w-0 flex-1">
+                <p className="font-medium text-foreground">{listing.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatEventDateRange(event.start_at, event.end_at)}
+                  {getCategoryLabel(listing.category)}
                 </p>
               </Link>
               <StatusToggleBadge
-                status={event.status}
-                onToggle={toggleEventStatus.bind(null, event.id)}
+                status={listing.status}
+                onToggle={toggleListingStatus.bind(null, listing.id)}
               />
             </li>
           ))}

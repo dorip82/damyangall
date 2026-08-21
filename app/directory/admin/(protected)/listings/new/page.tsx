@@ -1,5 +1,5 @@
 import { ListingForm } from "@/components/admin/ListingForm";
-import { createListing } from "@/app/directory/admin/(protected)/actions";
+import { createListing } from "@/app/directory/admin/(protected)/listings/actions";
 
 export default function NewListingPage() {
   return (
