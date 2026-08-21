@@ -87,7 +87,7 @@ export async function TodaySection() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {stats.map(({ label, value, Icon }) => (
           <div
             key={label}
@@ -96,10 +96,10 @@ export async function TodaySection() {
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
               <Icon className="size-4" aria-hidden />
             </span>
-            <div className="min-w-0">
-              <p className="text-lg font-bold text-foreground">{value}</p>
-              <p className="truncate text-xs text-muted-foreground">{label}</p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              <span className="mr-1.5 text-lg font-bold text-foreground">{value}</span>
+              {label}
+            </p>
           </div>
         ))}
       </div>
