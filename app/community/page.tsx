@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Paperclip, Link2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { COMMUNITY_CATEGORIES, getCommunityCategoryLabel } from "@/lib/community/categories";
 import { PortalHeader } from "@/components/main/PortalHeader";
@@ -27,7 +28,10 @@ export default async function CommunityPage({
   const from = (page - 1) * PAGE_SIZE;
   let query = supabase
     .from("community_posts")
-    .select("id, category, author_name, title, created_at", { count: "exact" })
+    .select(
+      "id, category, author_name, title, created_at, image_url, attachment_url, link_url",
+      { count: "exact" }
+    )
     .eq("status", "PUBLISHED")
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
@@ -86,20 +90,41 @@ export default async function CommunityPage({
                 <li key={post.id}>
                   <Link
                     href={`/community/${post.id}`}
-                    className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-muted"
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-muted"
                   >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
-                        {getCommunityCategoryLabel(post.category)}
-                      </span>
-                      <span className="truncate font-medium text-foreground">
-                        {post.title}
+                    {post.image_url ? (
+                      <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={post.image_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
+                          {getCommunityCategoryLabel(post.category)}
+                        </span>
+                        <span className="truncate font-medium text-foreground">
+                          {post.title}
+                        </span>
+                        {post.attachment_url ? (
+                          <Paperclip
+                            className="size-3.5 shrink-0 text-muted-foreground"
+                            aria-hidden
+                          />
+                        ) : null}
+                        {post.link_url ? (
+                          <Link2 className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                        ) : null}
+                      </div>
+                      <span className="shrink-0 text-sm text-muted-foreground">
+                        {post.author_name} ·{" "}
+                        {new Date(post.created_at).toLocaleDateString("ko-KR")}
                       </span>
                     </div>
-                    <span className="shrink-0 text-sm text-muted-foreground">
-                      {post.author_name} ·{" "}
-                      {new Date(post.created_at).toLocaleDateString("ko-KR")}
-                    </span>
                   </Link>
                 </li>
               ))}

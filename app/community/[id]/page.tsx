@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Paperclip, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCommunityCategoryLabel } from "@/lib/community/categories";
+import { isSafeHttpUrl } from "@/lib/utils/safe-url";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
 import { Button } from "@/components/ui/button";
@@ -49,9 +50,47 @@ export default async function CommunityPostDetailPage({
             {post.author_name} ·{" "}
             {new Date(post.created_at).toLocaleDateString("ko-KR")}
           </p>
+          {post.image_url ? (
+            <div className="mt-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={post.image_url}
+                alt=""
+                className="max-h-[32rem] w-full rounded-2xl border border-border object-cover"
+              />
+            </div>
+          ) : null}
+
           <div className="mt-8 whitespace-pre-line text-base leading-relaxed text-foreground/80">
             {post.content}
           </div>
+
+          {post.attachment_url || isSafeHttpUrl(post.link_url) ? (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {post.attachment_url ? (
+                <a
+                  href={post.attachment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-foreground hover:border-accent hover:text-accent"
+                >
+                  <Paperclip className="size-4" aria-hidden />
+                  {post.attachment_name || "첨부파일"}
+                </a>
+              ) : null}
+              {isSafeHttpUrl(post.link_url) ? (
+                <a
+                  href={post.link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-foreground hover:border-accent hover:text-accent"
+                >
+                  <ExternalLink className="size-4" aria-hidden />
+                  {post.link_url}
+                </a>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="mt-10 border-t border-border pt-6">
             <Button variant="outline" render={<Link href="/community" />}>

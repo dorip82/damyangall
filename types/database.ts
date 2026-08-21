@@ -329,6 +329,10 @@ export interface Database {
           author_name: string;
           title: string;
           content: string;
+          image_url: string | null;
+          attachment_url: string | null;
+          attachment_name: string | null;
+          link_url: string | null;
           status: CommunityPostStatus;
           created_at: string;
           updated_at: string;

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { CommunityImageField } from "@/components/main/CommunityImageField";
+import { CommunityAttachmentField } from "@/components/main/CommunityAttachmentField";
 import {
   Select,
   SelectContent,
@@ -57,6 +59,20 @@ export function CommunityPostForm() {
       <div className="space-y-2">
         <Label htmlFor="content">내용</Label>
         <Textarea id="content" name="content" rows={8} maxLength={5000} required />
+      </div>
+
+      <CommunityImageField />
+      <CommunityAttachmentField />
+
+      <div className="space-y-2">
+        <Label htmlFor="linkUrl">관련 링크 (선택)</Label>
+        <Input
+          id="linkUrl"
+          name="linkUrl"
+          type="url"
+          placeholder="https://..."
+          maxLength={2000}
+        />
       </div>
 
       <p className="text-xs text-muted-foreground">
