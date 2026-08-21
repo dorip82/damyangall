@@ -7,7 +7,13 @@ export function DirectoryAdminHeader() {
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-2">
-        <AdminMobileNav navItems={NAV_ITEMS} />
+        <AdminMobileNav
+          navItems={NAV_ITEMS.map(({ href, label, Icon }) => ({
+            href,
+            label,
+            icon: <Icon className="size-4" aria-hidden />,
+          }))}
+        />
         <div className="flex items-baseline gap-2">
           <span className="font-bold text-foreground">올담</span>
           <span className="text-sm text-muted-foreground">플랫폼 관리자</span>

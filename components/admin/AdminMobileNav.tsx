@@ -1,7 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { Menu, type LucideIcon } from "lucide-react";
+import { Menu } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -15,10 +16,16 @@ import { Button } from "@/components/ui/button";
 export interface AdminNavItem {
   href: string;
   label: string;
-  Icon: LucideIcon;
+  icon: ReactNode;
 }
 
-/** Mobile fallback for a sidebar that's `hidden ... sm:block` — same nav items, in a drawer. */
+/**
+ * Mobile fallback for a sidebar that's `hidden ... sm:block` — same nav
+ * items, in a drawer. Takes pre-rendered icon elements rather than a
+ * component reference: this renders inside a Client Component, and a raw
+ * function (an unrendered icon component) can't be passed as a prop across
+ * the Server -> Client boundary — only already-rendered elements can.
+ */
 export function AdminMobileNav({ navItems }: { navItems: readonly AdminNavItem[] }) {
   return (
     <Drawer swipeDirection="left">
@@ -34,7 +41,7 @@ export function AdminMobileNav({ navItems }: { navItems: readonly AdminNavItem[]
           <DrawerTitle>메뉴</DrawerTitle>
         </DrawerHeader>
         <nav className="flex flex-col gap-1 p-4 pt-2">
-          {navItems.map(({ href, label, Icon }) => (
+          {navItems.map(({ href, label, icon }) => (
             <DrawerClose
               key={href}
               render={
@@ -44,7 +51,7 @@ export function AdminMobileNav({ navItems }: { navItems: readonly AdminNavItem[]
                 />
               }
             >
-              <Icon className="size-4" aria-hidden />
+              {icon}
               {label}
             </DrawerClose>
           ))}
