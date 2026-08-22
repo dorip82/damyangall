@@ -13,6 +13,10 @@ import { toggleNewsStatus } from "@/app/directory/admin/(protected)/news/actions
 import type { NewsCategory } from "@/types/database";
 
 const PAGE_SIZE = 20;
+// The "지금 수집하기" Server Action ends up calling the same
+// runNewsFetch() as the cron route, which needs to run out of Seoul —
+// see app/api/cron/fetch-news/route.ts for why.
+export const preferredRegion = "icn1";
 const STATUS_OPTIONS = [
   { value: "", label: "전체" },
   { value: "PUBLISHED", label: "게시됨" },

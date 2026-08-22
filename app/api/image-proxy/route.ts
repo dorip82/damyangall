@@ -6,6 +6,14 @@ const ALLOWED_HOSTNAMES = new Set(
   NEWS_SOURCES.map((s) => new URL(s.origin).hostname)
 );
 
+// These origins are small, older Korean hosts (one is literally running
+// Apache 2.4.53 / PHP 5.2.17) that reject requests from Vercel's default US
+// region outright — confirmed: identical request works from a home network,
+// 502s from the deployed function. Running the function itself out of icn1
+// (Seoul) is the fix, not a timeout/retry — the connection is being
+// rejected, not just slow.
+export const preferredRegion = "icn1";
+
 /**
  * The scraped local news sites only serve plain HTTP (some don't even
  * respond on 443), so an <img src="http://..."> on our HTTPS pages gets

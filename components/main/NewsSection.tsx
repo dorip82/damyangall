@@ -3,6 +3,7 @@ import { ArrowRight, Newspaper } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getNewsCategoryLabel } from "@/lib/news/categories";
 import { proxiedImageSrc } from "@/lib/utils/image-proxy";
+import { ImageWithFallback } from "@/components/main/ImageWithFallback";
 
 export async function NewsSection() {
   const supabase = await createClient();
@@ -45,11 +46,15 @@ export async function NewsSection() {
               >
                 <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                   {news.thumbnail_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <ImageWithFallback
                       src={proxiedImageSrc(news.thumbnail_url)!}
                       alt=""
                       className="h-full w-full object-cover"
+                      fallback={
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                          <Newspaper className="size-5" aria-hidden />
+                        </div>
+                      }
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-muted-foreground">
