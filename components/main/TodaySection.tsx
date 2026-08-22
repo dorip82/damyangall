@@ -1,6 +1,7 @@
 import { CalendarDays, Newspaper, MessageCircle, Store, Sun, CloudRain, Snowflake, Droplets } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentWeather } from "@/lib/weather/get-current-weather";
+import { CurrentTimeDisplay } from "@/components/main/CurrentTimeDisplay";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -86,6 +87,8 @@ export async function TodaySection() {
           </div>
         </div>
       ) : null}
+
+      <CurrentTimeDisplay />
 
       <div className="grid grid-cols-1 gap-3">
         {stats.map(({ label, value, Icon }) => (
