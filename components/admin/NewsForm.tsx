@@ -3,7 +3,8 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import type { NewsFormState } from "@/app/directory/admin/(protected)/news/actions";
-import { NEWS_CATEGORIES } from "@/lib/news/categories";
+import { NEWS_CATEGORIES, getNewsCategoryLabel } from "@/lib/news/categories";
+import { getPublishStatusLabel } from "@/lib/utils/status-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { NewsRow } from "@/types/news";
+import type { NewsCategory } from "@/types/database";
 
 const initialState: NewsFormState = { ok: false };
 
@@ -43,7 +45,7 @@ export function NewsForm({
         <Label htmlFor="category">카테고리</Label>
         <Select name="category" defaultValue={news?.category ?? NEWS_CATEGORIES[0].value}>
           <SelectTrigger id="category" className="w-48">
-            <SelectValue />
+            <SelectValue>{(value: NewsCategory) => getNewsCategoryLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {NEWS_CATEGORIES.map((c) => (
@@ -86,7 +88,7 @@ export function NewsForm({
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={news?.status ?? "PUBLISHED"}>
           <SelectTrigger id="status" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPublishStatusLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="PUBLISHED">게시</SelectItem>

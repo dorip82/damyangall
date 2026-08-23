@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/select";
 import type { SitePost } from "@/types/site";
 
+const POST_STATUS_LABELS = { DRAFT: "임시저장", PUBLISHED: "게시" } as const;
+function getPostStatusLabel(status: string): string {
+  return POST_STATUS_LABELS[status as keyof typeof POST_STATUS_LABELS] ?? status;
+}
+
 const initialState: PostFormState = { ok: false };
 
 export function PostForm({
@@ -96,7 +101,7 @@ export function PostForm({
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={post?.status ?? "DRAFT"}>
           <SelectTrigger id="status" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPostStatusLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="DRAFT">임시저장</SelectItem>

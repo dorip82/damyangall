@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import type { BannerAdFormState } from "@/app/directory/admin/(protected)/ads/actions";
+import { getPublishStatusLabel } from "@/lib/utils/status-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { BannerAdRow } from "@/types/banner-ad";
+
+const POSITION_LABELS = { LEFT: "왼쪽", RIGHT: "오른쪽" } as const;
+function getPositionLabel(position: string): string {
+  return POSITION_LABELS[position as keyof typeof POSITION_LABELS] ?? position;
+}
 
 const initialState: BannerAdFormState = { ok: false };
 
@@ -41,7 +47,7 @@ export function BannerAdForm({
         <Label htmlFor="position">노출 위치</Label>
         <Select name="position" defaultValue={banner?.position ?? "LEFT"}>
           <SelectTrigger id="position" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPositionLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="LEFT">왼쪽</SelectItem>
@@ -86,7 +92,7 @@ export function BannerAdForm({
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={banner?.status ?? "PUBLISHED"}>
           <SelectTrigger id="status" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPublishStatusLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="PUBLISHED">게시</SelectItem>

@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import type { EventFormState } from "@/app/directory/admin/(protected)/events/actions";
+import { getPublishStatusLabel } from "@/lib/utils/status-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -110,7 +111,7 @@ export function EventForm({
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={event?.status ?? "PUBLISHED"}>
           <SelectTrigger id="status" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPublishStatusLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="PUBLISHED">게시</SelectItem>

@@ -3,7 +3,8 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { createCommunityPost, type CommunityPostFormState } from "@/app/community/actions";
-import { COMMUNITY_CATEGORIES } from "@/lib/community/categories";
+import { COMMUNITY_CATEGORIES, getCommunityCategoryLabel } from "@/lib/community/categories";
+import type { CommunityCategory } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,7 +35,7 @@ export function CommunityPostForm() {
         <Label htmlFor="category">게시판</Label>
         <Select name="category" defaultValue={COMMUNITY_CATEGORIES[0].value}>
           <SelectTrigger id="category" className="w-48">
-            <SelectValue />
+            <SelectValue>{(value: CommunityCategory) => getCommunityCategoryLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {COMMUNITY_CATEGORIES.map((c) => (

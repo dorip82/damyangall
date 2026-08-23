@@ -36,7 +36,9 @@ export function TextBlockForm({
           }
         >
           <SelectTrigger className="w-full">
-            <SelectValue />
+            <SelectValue>
+              {(value: keyof typeof VARIANT_LABELS) => VARIANT_LABELS[value] ?? value}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {Object.entries(VARIANT_LABELS).map(([key, label]) => (

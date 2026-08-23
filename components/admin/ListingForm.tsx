@@ -3,7 +3,8 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import type { ListingFormState } from "@/app/directory/admin/(protected)/listings/actions";
-import { DIRECTORY_CATEGORIES } from "@/lib/directory/categories";
+import { DIRECTORY_CATEGORIES, getCategoryLabel } from "@/lib/directory/categories";
+import { getPublishStatusLabel } from "@/lib/utils/status-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { DirectoryListing } from "@/types/directory";
+import type { DirectoryCategory } from "@/types/database";
 
 const initialState: ListingFormState = { ok: false };
 
@@ -43,7 +45,7 @@ export function ListingForm({
         <Label htmlFor="category">카테고리</Label>
         <Select name="category" defaultValue={listing?.category ?? DIRECTORY_CATEGORIES[0].value}>
           <SelectTrigger id="category" className="w-48">
-            <SelectValue />
+            <SelectValue>{(value: DirectoryCategory) => getCategoryLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {DIRECTORY_CATEGORIES.map((c) => (
@@ -100,7 +102,7 @@ export function ListingForm({
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={listing?.status ?? "PUBLISHED"}>
           <SelectTrigger id="status" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPublishStatusLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="PUBLISHED">게시</SelectItem>

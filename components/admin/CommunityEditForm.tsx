@@ -4,7 +4,8 @@ import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import type { CommunityEditFormState } from "@/app/directory/admin/(protected)/community/actions";
 import { updateCommunityPost } from "@/app/directory/admin/(protected)/community/actions";
-import { COMMUNITY_CATEGORIES } from "@/lib/community/categories";
+import { COMMUNITY_CATEGORIES, getCommunityCategoryLabel } from "@/lib/community/categories";
+import { getPublishStatusLabel } from "@/lib/utils/status-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Database } from "@/types/database";
+import type { Database, CommunityCategory } from "@/types/database";
 
 type CommunityPost = Database["public"]["Tables"]["community_posts"]["Row"];
 
@@ -40,7 +41,7 @@ export function CommunityEditForm({ post }: { post: CommunityPost }) {
         <Label htmlFor="category">게시판</Label>
         <Select name="category" defaultValue={post.category}>
           <SelectTrigger id="category" className="w-48">
-            <SelectValue />
+            <SelectValue>{(value: CommunityCategory) => getCommunityCategoryLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {COMMUNITY_CATEGORIES.map((c) => (
@@ -96,7 +97,7 @@ export function CommunityEditForm({ post }: { post: CommunityPost }) {
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={post.status}>
           <SelectTrigger id="status" className="w-40">
-            <SelectValue />
+            <SelectValue>{(value: string) => getPublishStatusLabel(value)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="PUBLISHED">게시</SelectItem>
