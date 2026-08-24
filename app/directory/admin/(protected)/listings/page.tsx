@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DIRECTORY_CATEGORIES, getCategoryLabel } from "@/lib/directory/categories";
 import { Button } from "@/components/ui/button";
@@ -59,9 +59,14 @@ export default async function DirectoryAdminListingsPage({
             전체 {count ?? 0}건
           </p>
         </div>
-        <Button render={<Link href="/directory/admin/listings/new" />}>
-          <Plus className="size-4" /> 새 업체 등록
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" render={<Link href="/directory/admin/listings/bulk" />}>
+            <Upload className="size-4" /> 일괄등록
+          </Button>
+          <Button render={<Link href="/directory/admin/listings/new" />}>
+            <Plus className="size-4" /> 새 업체 등록
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">

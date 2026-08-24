@@ -140,3 +140,119 @@ export async function toggleListingStatus(
   revalidatePath(`/directory/${listingId}`);
   revalidatePath("/directory/admin/listings");
 }
+
+const CATEGORY_BY_LABEL = new Map(DIRECTORY_CATEGORIES.map((c) => [c.label, c.value]));
+const CATEGORY_VALUE_SET = new Set(CATEGORY_VALUES);
+const MAX_BULK_ROWS = 300;
+
+function normalizeCategory(raw: string): string | null {
+  const trimmed = raw.trim();
+  const upper = trimmed.toUpperCase();
+  if (CATEGORY_VALUE_SET.has(upper)) return upper;
+  return CATEGORY_BY_LABEL.get(trimmed) ?? null;
+}
+
+function normalizeStatus(raw: string): "PUBLISHED" | "HIDDEN" | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") return "PUBLISHED";
+  if (trimmed === "게시" || trimmed === "공개" || trimmed.toUpperCase() === "PUBLISHED") {
+    return "PUBLISHED";
+  }
+  if (trimmed === "숨김" || trimmed === "비공개" || trimmed.toUpperCase() === "HIDDEN") {
+    return "HIDDEN";
+  }
+  return null;
+}
+
+export interface BulkListingFormState {
+  ok: boolean;
+  error?: string;
+  insertedCount?: number;
+  skipped?: { line: number; reason: string }[];
+}
+
+// 엑셀/구글 시트에서 표를 복사해 붙여넣으면 탭으로 열이 구분되므로, 주소에
+// 흔한 쉼표 이스케이프 문제 없이 탭 구분으로 파싱한다.
+export async function bulkCreateListings(
+  _prevState: BulkListingFormState,
+  formData: FormData
+): Promise<BulkListingFormState> {
+  await requireSuperAdmin();
+
+  const raw = String(formData.get("rows") ?? "");
+  const lines = raw
+    .split("\n")
+    .map((line) => line.replace(/\r$/, ""))
+    .filter((line) => line.trim() !== "");
+
+  if (!lines.length) {
+    return { ok: false, error: "붙여넣을 내용이 없습니다." };
+  }
+  if (lines.length > MAX_BULK_ROWS) {
+    return { ok: false, error: `한 번에 최대 ${MAX_BULK_ROWS}행까지 등록할 수 있습니다.` };
+  }
+
+  const startIndex =
+    lines[0]?.split("\t")[0]?.trim() === "카테고리" ? 1 : 0;
+
+  const toInsert: {
+    category: string;
+    name: string;
+    description: string | null;
+    phone: string | null;
+    address: string | null;
+    instagram_url: string | null;
+    status: "PUBLISHED" | "HIDDEN";
+  }[] = [];
+  const skipped: { line: number; reason: string }[] = [];
+
+  for (let i = startIndex; i < lines.length; i++) {
+    const lineNumber = i + 1;
+    const cells = lines[i]!.split("\t").map((c) => c.trim());
+    const [categoryRaw, name, description, phone, address, instagramUrl, statusRaw] = cells;
+
+    if (!name) {
+      skipped.push({ line: lineNumber, reason: "업체명이 없습니다." });
+      continue;
+    }
+    const category = normalizeCategory(categoryRaw ?? "");
+    if (!category) {
+      skipped.push({ line: lineNumber, reason: `알 수 없는 카테고리: "${categoryRaw ?? ""}"` });
+      continue;
+    }
+    const status = normalizeStatus(statusRaw ?? "");
+    if (status === null) {
+      skipped.push({ line: lineNumber, reason: `알 수 없는 상태: "${statusRaw ?? ""}"` });
+      continue;
+    }
+
+    toInsert.push({
+      category,
+      name,
+      description: description || null,
+      phone: phone || null,
+      address: address || null,
+      instagram_url: instagramUrl || null,
+      status,
+    });
+  }
+
+  if (!toInsert.length) {
+    return { ok: false, error: "등록 가능한 행이 없습니다.", skipped };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("directory_listings")
+    .insert(toInsert as never)
+    .select("id");
+
+  if (error) {
+    return { ok: false, error: "저장 중 오류가 발생했습니다.", skipped };
+  }
+
+  revalidatePath("/directory");
+  revalidatePath("/directory/admin/listings");
+
+  return { ok: true, insertedCount: data?.length ?? 0, skipped };
+}
