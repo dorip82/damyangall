@@ -442,6 +442,18 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["banner_ads"]["Row"]>;
         Relationships: [];
       };
+      page_views: {
+        Row: {
+          id: number;
+          path: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["page_views"]["Row"]> & {
+          path: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["page_views"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

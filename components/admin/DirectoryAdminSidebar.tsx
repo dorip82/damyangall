@@ -7,6 +7,7 @@ import {
   CalendarDays,
   MessageCircle,
   Megaphone,
+  BarChart3,
 } from "lucide-react";
 
 export const NAV_ITEMS = [
@@ -17,6 +18,7 @@ export const NAV_ITEMS = [
   { href: "/directory/admin/events", label: "행사", Icon: CalendarDays },
   { href: "/directory/admin/community", label: "커뮤니티", Icon: MessageCircle },
   { href: "/directory/admin/ads", label: "광고 배너", Icon: Megaphone },
+  { href: "/directory/admin/stats", label: "접속통계", Icon: BarChart3 },
 ] as const;
 
 export function DirectoryAdminSidebar() {
