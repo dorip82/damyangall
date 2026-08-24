@@ -20,6 +20,7 @@ const EXAMPLE_ROW = [
   "전화번호",
   "주소",
   "인스타그램URL",
+  "홈페이지URL",
   "상태",
 ].join("\t");
 

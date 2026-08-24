@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Phone, MapPin, ArrowLeft } from "lucide-react";
+import { Phone, MapPin, ArrowLeft, Globe } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCategoryLabel } from "@/lib/directory/categories";
 import { PortalHeader } from "@/components/main/PortalHeader";
@@ -82,7 +82,7 @@ export default async function DirectoryListingPage({
             </p>
           ) : null}
 
-          <div className="mt-4">
+          <div className="mt-4 flex items-center gap-2">
             {listing.instagram_url ? (
               <a
                 href={listing.instagram_url}
@@ -99,6 +99,24 @@ export default async function DirectoryListingPage({
                 className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-full border border-border text-foreground/25"
               >
                 <InstagramIcon className="size-5" />
+              </span>
+            )}
+            {listing.website_url ? (
+              <a
+                href={listing.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="홈페이지"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-border text-foreground/70 transition-colors hover:border-accent hover:text-accent"
+              >
+                <Globe className="size-5" aria-hidden />
+              </a>
+            ) : (
+              <span
+                aria-hidden
+                className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-full border border-border text-foreground/25"
+              >
+                <Globe className="size-5" />
               </span>
             )}
           </div>

@@ -20,6 +20,7 @@ const listingSchema = z.object({
   address: z.string().optional(),
   imageUrl: z.string().optional(),
   instagramUrl: z.string().optional(),
+  websiteUrl: z.string().optional(),
   status: z.enum(["PUBLISHED", "HIDDEN"]),
 });
 
@@ -40,6 +41,7 @@ export async function createListing(
     address: formData.get("address"),
     imageUrl: formData.get("imageUrl"),
     instagramUrl: formData.get("instagramUrl"),
+    websiteUrl: formData.get("websiteUrl"),
     status: formData.get("status"),
   });
   if (!parsed.success) {
@@ -60,6 +62,7 @@ export async function createListing(
       address: values.address || null,
       image_url: values.imageUrl || null,
       instagram_url: values.instagramUrl || null,
+      website_url: values.websiteUrl || null,
       status: values.status,
     })
     .select("id")
@@ -85,6 +88,7 @@ export async function updateListing(
     address: formData.get("address"),
     imageUrl: formData.get("imageUrl"),
     instagramUrl: formData.get("instagramUrl"),
+    websiteUrl: formData.get("websiteUrl"),
     status: formData.get("status"),
   });
   if (!parsed.success) {
@@ -105,6 +109,7 @@ export async function updateListing(
       address: values.address || null,
       image_url: values.imageUrl || null,
       instagram_url: values.instagramUrl || null,
+      website_url: values.websiteUrl || null,
       status: values.status,
     })
     .eq("id", listingId);
@@ -202,6 +207,7 @@ export async function bulkCreateListings(
     phone: string | null;
     address: string | null;
     instagram_url: string | null;
+    website_url: string | null;
     status: "PUBLISHED" | "HIDDEN";
   }[] = [];
   const skipped: { line: number; reason: string }[] = [];
@@ -209,7 +215,8 @@ export async function bulkCreateListings(
   for (let i = startIndex; i < lines.length; i++) {
     const lineNumber = i + 1;
     const cells = lines[i]!.split("\t").map((c) => c.trim());
-    const [categoryRaw, name, description, phone, address, instagramUrl, statusRaw] = cells;
+    const [categoryRaw, name, description, phone, address, instagramUrl, websiteUrl, statusRaw] =
+      cells;
 
     if (!name) {
       skipped.push({ line: lineNumber, reason: "업체명이 없습니다." });
@@ -233,6 +240,7 @@ export async function bulkCreateListings(
       phone: phone || null,
       address: address || null,
       instagram_url: instagramUrl || null,
+      website_url: websiteUrl || null,
       status,
     });
   }

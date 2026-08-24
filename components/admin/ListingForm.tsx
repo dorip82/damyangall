@@ -99,6 +99,19 @@ export function ListingForm({
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="websiteUrl">홈페이지 URL</Label>
+        <Input
+          id="websiteUrl"
+          name="websiteUrl"
+          placeholder="https://..."
+          defaultValue={listing?.website_url ?? ""}
+        />
+        <p className="text-xs text-muted-foreground">
+          입력하면 상세 페이지에 홈페이지 아이콘이 활성화됩니다. 비워두면 비활성 상태로 표시됩니다.
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="status">상태</Label>
         <Select name="status" defaultValue={listing?.status ?? "PUBLISHED"}>
           <SelectTrigger id="status" className="w-40">
