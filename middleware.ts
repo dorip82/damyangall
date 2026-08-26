@@ -19,9 +19,17 @@ const PUBLIC_PREFIX = "/site";
  * Admin paths don't need this: there is no root-level "/admin" page to
  * collide with, so app/admin/... resolves directly. It still gets the
  * x-site-slug header like everything else on a subdomain request.
+ *
+ * robots.txt is the same story — search engines fetch it from whatever host
+ * they crawled, and a club subdomain has no app/site/robots.txt to rewrite
+ * onto, so it must keep resolving to the root app/robots.ts everywhere.
  */
 function rewrittenPathname(pathname: string): string {
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+  if (
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/robots.txt"
+  ) {
     return pathname;
   }
   return pathname === "/" ? PUBLIC_PREFIX : `${PUBLIC_PREFIX}${pathname}`;
