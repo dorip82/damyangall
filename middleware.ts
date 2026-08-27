@@ -20,15 +20,17 @@ const PUBLIC_PREFIX = "/site";
  * collide with, so app/admin/... resolves directly. It still gets the
  * x-site-slug header like everything else on a subdomain request.
  *
- * robots.txt is the same story — search engines fetch it from whatever host
- * they crawled, and a club subdomain has no app/site/robots.txt to rewrite
- * onto, so it must keep resolving to the root app/robots.ts everywhere.
+ * robots.txt and rss.xml are the same story — search engines/crawlers fetch
+ * them from whatever host they crawled, and a club subdomain has no
+ * app/site/robots.txt or app/site/rss.xml to rewrite onto, so both must
+ * keep resolving to the root app/robots.ts and app/rss.xml everywhere.
  */
 function rewrittenPathname(pathname: string): string {
   if (
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
-    pathname === "/robots.txt"
+    pathname === "/robots.txt" ||
+    pathname === "/rss.xml"
   ) {
     return pathname;
   }
