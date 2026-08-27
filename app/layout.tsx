@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     type: "website",
     images: ["/images/hero-1.webp"],
   },
+  verification: {
+    other: {
+      "naver-site-verification": "96ec861f7c92f2c9c3c5e54c3e75864a86771001",
+    },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
