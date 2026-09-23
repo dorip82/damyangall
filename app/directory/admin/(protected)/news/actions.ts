@@ -142,5 +142,6 @@ export async function triggerNewsFetch(): Promise<NewsFetchResult[]> {
   revalidatePath("/news");
   revalidatePath("/");
   revalidatePath("/directory/admin/news");
+  revalidatePath("/directory/admin/news/sources");
   return results;
 }

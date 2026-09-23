@@ -1,10 +1,38 @@
 import { NextResponse } from "next/server";
-import { NEWS_SOURCES } from "@/lib/news-scraper/sources";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const FETCH_TIMEOUT_MS = 8_000;
-const ALLOWED_HOSTNAMES = new Set(
-  NEWS_SOURCES.map((s) => new URL(s.origin).hostname)
-);
+const HOST_CACHE_TTL_MS = 5 * 60_000;
+
+let cachedHosts: { hosts: string[]; expiresAt: number } | null = null;
+
+/**
+ * Hostnames of every row in news_sources — including disabled ones, so
+ * thumbnails of articles already collected from a source keep loading after
+ * it's switched off. Cached per function instance so a page full of
+ * thumbnails doesn't turn into one DB query per image.
+ */
+async function getAllowedHosts(): Promise<string[]> {
+  if (cachedHosts && cachedHosts.expiresAt > Date.now()) return cachedHosts.hosts;
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
+
+  const { data, error } = await createAdminClient().from("news_sources").select("list_url");
+  if (error) return cachedHosts?.hosts ?? [];
+  const hosts = (data ?? []).flatMap((row) => {
+    try {
+      return [new URL(row.list_url).hostname.replace(/^www\./, "")];
+    } catch {
+      return [];
+    }
+  });
+  cachedHosts = { hosts, expiresAt: Date.now() + HOST_CACHE_TTL_MS };
+  return hosts;
+}
+
+/** Exact source host, or a subdomain of it (og:image is often on img./cdn.). */
+function isAllowedHost(hostname: string, allowed: string[]): boolean {
+  return allowed.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+}
 
 // These origins are small, older Korean hosts (one is literally running
 // Apache 2.4.53 / PHP 5.2.17) that reject requests from Vercel's default US
@@ -21,7 +49,7 @@ export const preferredRegion = "icn1";
  * server-side (no browser same-origin/mixed-content rules apply to a
  * server-to-server fetch) and re-serves it from our own HTTPS origin.
  *
- * Restricted to the exact hostnames we scrape from — an open image proxy
+ * Restricted to the hostnames we scrape from (news_sources) — an open image proxy
  * would let anyone use this route to fetch arbitrary URLs through our
  * server (SSRF risk), so unknown hosts are rejected outright.
  */
@@ -38,7 +66,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid url" }, { status: 400 });
   }
 
-  if (!ALLOWED_HOSTNAMES.has(parsed.hostname)) {
+  if (!isAllowedHost(parsed.hostname, await getAllowedHosts())) {
     return NextResponse.json({ error: "Host not allowed" }, { status: 403 });
   }
 

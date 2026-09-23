@@ -63,6 +63,7 @@ export type EventStatus = "PUBLISHED" | "HIDDEN";
 export type NewsCategory = "LOCAL" | "LIFE" | "REPORT";
 export type NewsStatus = "PUBLISHED" | "HIDDEN";
 export type NewsSourceType = "ADMIN" | "EXTERNAL";
+export type NewsSourceKind = "HTML" | "RSS";
 export type BannerAdPosition = "LEFT" | "RIGHT";
 export type BannerAdStatus = "PUBLISHED" | "HIDDEN";
 
@@ -423,6 +424,32 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["news"]["Row"]>;
         Relationships: [];
       };
+      news_sources: {
+        Row: {
+          id: string;
+          name: string;
+          kind: NewsSourceKind;
+          list_url: string;
+          charset: "utf-8" | "euc-kr";
+          link_pattern: string | null;
+          date_pattern: string | null;
+          keyword: string | null;
+          enabled: boolean;
+          sort_order: number;
+          last_run_at: string | null;
+          last_found: number | null;
+          last_inserted: number | null;
+          last_error: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["news_sources"]["Row"]> & {
+          name: string;
+          list_url: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["news_sources"]["Row"]>;
+        Relationships: [];
+      };
       banner_ads: {
         Row: {
           id: string;
@@ -481,6 +508,7 @@ export interface Database {
       news_category: NewsCategory;
       news_status: NewsStatus;
       news_source_type: NewsSourceType;
+      news_source_kind: NewsSourceKind;
       banner_ad_position: BannerAdPosition;
       banner_ad_status: BannerAdStatus;
     };

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Settings2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { NEWS_CATEGORIES, getNewsCategoryLabel } from "@/lib/news/categories";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ const PAGE_SIZE = 20;
 // runNewsFetch() as the cron route, which needs to run out of Seoul —
 // see app/api/cron/fetch-news/route.ts for why.
 export const preferredRegion = "icn1";
+export const maxDuration = 60;
 const STATUS_OPTIONS = [
   { value: "", label: "전체" },
   { value: "PUBLISHED", label: "게시됨" },
@@ -65,7 +66,10 @@ export default async function AdminNewsListPage({
           <h1 className="text-xl font-bold text-foreground">담양소식</h1>
           <p className="mt-1 text-sm text-muted-foreground">전체 {count ?? 0}건</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" render={<Link href="/directory/admin/news/sources" />}>
+            <Settings2 className="size-4" /> 수집처 관리
+          </Button>
           <FetchNewsButton />
           <Button render={<Link href="/directory/admin/news/new" />}>
             <Plus className="size-4" /> 새 소식 등록

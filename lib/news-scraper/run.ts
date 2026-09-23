@@ -3,9 +3,17 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchHtml } from "@/lib/news-scraper/fetch-html";
 import { extractOgMeta } from "@/lib/news-scraper/extract-og";
 import { isSimilarTitle } from "@/lib/news-scraper/similarity";
-import { NEWS_SOURCES, isSameKstDay, type NewsSource } from "@/lib/news-scraper/sources";
+import {
+  extractCandidates,
+  extractPublishedAt,
+  isRecent,
+  type Candidate,
+  type NewsSourceConfig,
+} from "@/lib/news-scraper/sources";
+import type { NewsSourceRow } from "@/types/news";
 
-const CANDIDATES_PER_SOURCE = 6;
+const CANDIDATES_PER_SOURCE = 10;
+const ARTICLE_FETCH_CONCURRENCY = 4;
 const SUMMARY_MAX_LENGTH = 400;
 
 interface StagedArticle {
@@ -25,68 +33,175 @@ export interface NewsFetchResult {
   error?: string;
 }
 
-async function collectFromSource(
-  source: NewsSource,
-  knownUrls: Set<string>,
-  now: Date
-): Promise<{ source: NewsSource; staged: StagedArticle[]; found: number; error?: string }> {
-  try {
-    const listHtml = await fetchHtml(source.listUrl, source.charset);
-    if (!listHtml) {
-      return { source, staged: [], found: 0, error: "목록 페이지를 가져오지 못했습니다." };
+export type CheckedStatus = "new" | "known" | "old" | "no-keyword" | "no-title" | "fetch-failed";
+
+export interface CheckedArticle {
+  url: string;
+  title: string | null;
+  publishedAt: string | null;
+  status: CheckedStatus;
+}
+
+export interface SourcePreview {
+  linksFound: number;
+  articles: CheckedArticle[];
+  error?: string;
+}
+
+interface Collected {
+  staged: StagedArticle[];
+  checked: CheckedArticle[];
+  linksFound: number;
+  error?: string;
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await fn(items[index]);
     }
-
-    const candidates = source
-      .extractLinks(listHtml)
-      .filter((url) => !knownUrls.has(url))
-      .slice(0, CANDIDATES_PER_SOURCE);
-
-    const staged: StagedArticle[] = [];
-    for (const url of candidates) {
-      const articleHtml = await fetchHtml(url, source.charset);
-      if (!articleHtml) continue;
-
-      const publishedAt = source.extractPublishedAt(articleHtml);
-      if (publishedAt && !isSameKstDay(publishedAt, now)) continue;
-
-      const og = extractOgMeta(articleHtml);
-      // These outlets also carry wire/regional stories that have nothing to
-      // do with Damyang specifically — require the keyword in title or
-      // summary so only actually-local coverage makes it onto 담양소식.
-      if (!og.title || !`${og.title} ${og.description ?? ""}`.includes("담양")) continue;
-
-      // Some outlets prefix their own description with "[담양신문] " —
-      // redundant since source_name is already shown separately.
-      const cleanedDescription = (og.description ?? "").replace(/^\[[^\]]*\]\s*/, "");
-      const summary = cleanedDescription.slice(0, SUMMARY_MAX_LENGTH);
-      staged.push({
-        title: og.title.slice(0, 200),
-        summary,
-        content: summary
-          ? `${summary}\n\n원문 기사: ${source.name}\n${url}`
-          : `원문 기사: ${source.name}\n${url}`,
-        thumbnailUrl: og.image,
-        sourceName: source.name,
-        sourceUrl: url,
-      });
-    }
-
-    return { source, staged, found: candidates.length };
-  } catch {
-    return { source, staged: [], found: 0, error: "수집 중 오류가 발생했습니다." };
   }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+function parseKeywords(keyword: string | null): string[] {
+  return (keyword ?? "")
+    .split(",")
+    .map((k) => k.trim())
+    .filter(Boolean);
+}
+
+async function checkCandidate(
+  source: NewsSourceConfig,
+  candidate: Candidate,
+  keywords: string[],
+  now: Date
+): Promise<{ checked: CheckedArticle; staged?: StagedArticle }> {
+  const { url } = candidate;
+  const articleHtml = await fetchHtml(url, source.charset);
+  if (!articleHtml) {
+    return { checked: { url, title: candidate.title ?? null, publishedAt: null, status: "fetch-failed" } };
+  }
+
+  const og = extractOgMeta(articleHtml);
+  const title = og.title ?? candidate.title ?? null;
+  const description = og.description ?? candidate.description ?? "";
+  const publishedAt = candidate.publishedAt ?? extractPublishedAt(source, articleHtml);
+  const checked: CheckedArticle = {
+    url,
+    title,
+    publishedAt: publishedAt?.toISOString() ?? null,
+    status: "new",
+  };
+
+  if (publishedAt && !isRecent(publishedAt, now)) return { checked: { ...checked, status: "old" } };
+  if (!title) return { checked: { ...checked, status: "no-title" } };
+  // These outlets also carry wire/regional stories that have nothing to do
+  // with Damyang specifically — require a keyword in title or summary so
+  // only actually-local coverage makes it onto 담양소식.
+  const haystack = `${title} ${description}`;
+  if (keywords.length && !keywords.some((k) => haystack.includes(k))) {
+    return { checked: { ...checked, status: "no-keyword" } };
+  }
+
+  // Some outlets prefix their own description with "[담양신문] " —
+  // redundant since source_name is already shown separately.
+  const summary = description.replace(/^\[[^\]]*\]\s*/, "").slice(0, SUMMARY_MAX_LENGTH);
+  return {
+    checked,
+    staged: {
+      title: title.slice(0, 200),
+      summary,
+      content: summary
+        ? `${summary}\n\n원문 기사: ${source.name}\n${url}`
+        : `원문 기사: ${source.name}\n${url}`,
+      thumbnailUrl: og.image,
+      sourceName: source.name,
+      sourceUrl: url,
+    },
+  };
 }
 
 /**
- * Pulls today's Damyang articles from the configured local news sites and
- * inserts them as EXTERNAL news rows. Safe to run repeatedly (daily cron,
- * or an admin's manual "지금 수집하기" click) — already-seen URLs are
- * skipped up front via the source_url unique constraint, and near-duplicate
- * headlines (the same story covered by multiple outlets) are collapsed
- * across ALL sources, not just within one — the four sites are fetched in
- * parallel for speed, but similarity-dedup runs afterward over the merged
- * candidate pool so the same story from two different outlets doesn't both
- * land in 담양소식.
+ * `preview` keeps already-collected links in the list (reported as "known"
+ * without refetching) so the admin sees what the source's newest links look
+ * like; a real run skips them up front so they don't use up the per-source
+ * candidate budget.
+ */
+async function collectFromSource(
+  source: NewsSourceConfig,
+  knownUrls: Set<string>,
+  now: Date,
+  { preview = false } = {}
+): Promise<Collected> {
+  try {
+    const listHtml = await fetchHtml(source.list_url, source.charset);
+    if (!listHtml) {
+      return { staged: [], checked: [], linksFound: 0, error: "목록 페이지를 가져오지 못했습니다." };
+    }
+
+    const all = extractCandidates(source, listHtml);
+    if (!all.length) {
+      return { staged: [], checked: [], linksFound: 0, error: "기사 링크를 찾지 못했습니다." };
+    }
+    const candidates = (preview ? all : all.filter((c) => !knownUrls.has(c.url))).slice(
+      0,
+      CANDIDATES_PER_SOURCE
+    );
+
+    const keywords = parseKeywords(source.keyword);
+    const results = await mapWithConcurrency(candidates, ARTICLE_FETCH_CONCURRENCY, (c) =>
+      knownUrls.has(c.url)
+        ? Promise.resolve({
+            checked: { url: c.url, title: c.title ?? null, publishedAt: null, status: "known" as const },
+          })
+        : checkCandidate(source, c, keywords, now)
+    );
+
+    return {
+      staged: results.flatMap((r) => ("staged" in r && r.staged ? [r.staged] : [])),
+      checked: results.map((r) => r.checked),
+      linksFound: all.length,
+    };
+  } catch (error) {
+    return {
+      staged: [],
+      checked: [],
+      linksFound: 0,
+      error: error instanceof Error ? error.message : "수집 중 오류가 발생했습니다.",
+    };
+  }
+}
+
+/** Dry run for the admin "미리보기" — fetches and filters but writes nothing. */
+export async function previewNewsSource(
+  source: NewsSourceConfig,
+  knownUrls: Set<string>
+): Promise<SourcePreview> {
+  const { checked, linksFound, error } = await collectFromSource(source, knownUrls, new Date(), {
+    preview: true,
+  });
+  return { linksFound, articles: checked, error };
+}
+
+/**
+ * Pulls today's/yesterday's Damyang articles from every enabled row in
+ * news_sources and inserts them as EXTERNAL news rows. Safe to run
+ * repeatedly (scheduled cron, or an admin's manual "지금 수집하기" click) —
+ * already-seen URLs are skipped up front via the source_url unique
+ * constraint, and near-duplicate headlines (the same story covered by
+ * multiple outlets) are collapsed across ALL sources, not just within one —
+ * the sites are fetched in parallel for speed, but similarity-dedup runs
+ * afterward over the merged candidate pool so the same story from two
+ * different outlets doesn't both land in 담양소식.
  */
 export async function runNewsFetch(): Promise<NewsFetchResult[]> {
   // This is the only runtime path that touches the service-role client —
@@ -111,29 +226,38 @@ export async function runNewsFetch(): Promise<NewsFetchResult[]> {
     const supabase = createAdminClient();
     const now = new Date();
 
+    const { data: sources, error: sourcesError } = await supabase
+      .from("news_sources")
+      .select("*")
+      .eq("enabled", true)
+      .order("sort_order")
+      .order("created_at")
+      .returns<NewsSourceRow[]>();
+    if (sourcesError) throw sourcesError;
+    if (!sources?.length) {
+      return [{ source: "전체", found: 0, inserted: 0, skipped: 0, error: "사용 중인 수집처가 없습니다." }];
+    }
+
     const { data: existingRows, error: existingRowsError } = await supabase
       .from("news")
       .select("source_url")
       .not("source_url", "is", null);
     if (existingRowsError) throw existingRowsError;
-    const knownUrls = new Set((existingRows ?? []).map((r) => r.source_url));
+    const knownUrls = new Set((existingRows ?? []).map((r) => r.source_url as string));
 
     const collected = await Promise.all(
-      NEWS_SOURCES.map((source) => collectFromSource(source, knownUrls, now))
+      sources.map(async (source) => ({
+        source,
+        ...(await collectFromSource(source, knownUrls, now)),
+      }))
     );
 
     const deduped: StagedArticle[] = [];
-    const dedupSkippedCount = new Map<string, number>();
-    for (const { source, staged } of collected) {
-      let skipped = 0;
+    for (const { staged } of collected) {
       for (const item of staged) {
-        if (deduped.some((existing) => isSimilarTitle(existing.title, item.title))) {
-          skipped++;
-          continue;
-        }
+        if (deduped.some((existing) => isSimilarTitle(existing.title, item.title))) continue;
         deduped.push(item);
       }
-      dedupSkippedCount.set(source.name, skipped);
     }
 
     let insertedUrls = new Set<string>();
@@ -159,16 +283,41 @@ export async function runNewsFetch(): Promise<NewsFetchResult[]> {
       insertedUrls = new Set((data ?? []).map((r) => r.source_url as string));
     }
 
-    return collected.map(({ source, staged, found, error }) => {
+    const results = collected.map(({ source, staged, checked, error }) => {
       const inserted = staged.filter((s) => insertedUrls.has(s.sourceUrl)).length;
       return {
+        id: source.id,
         source: source.name,
-        found,
+        found: checked.length,
         inserted,
-        skipped: found - inserted,
+        skipped: checked.length - inserted,
         error,
       };
     });
+
+    // Per-source "마지막 실행" shown on the 수집처 관리 page — the only way to
+    // tell from the admin UI whether the scheduled run is actually firing.
+    await Promise.all(
+      results.map((r) =>
+        supabase
+          .from("news_sources")
+          .update({
+            last_run_at: now.toISOString(),
+            last_found: r.found,
+            last_inserted: r.inserted,
+            last_error: r.error ?? null,
+          })
+          .eq("id", r.id)
+      )
+    );
+
+    return results.map((r) => ({
+      source: r.source,
+      found: r.found,
+      inserted: r.inserted,
+      skipped: r.skipped,
+      error: r.error,
+    }));
   } catch (error) {
     return [
       {

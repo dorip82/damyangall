@@ -8,8 +8,9 @@ import type { Database } from "@/types/database";
  * NEVER import this from anything that can end up in a client bundle or in
  * a request-scoped server action that a normal user can trigger. It exists
  * only for trusted, operator-run contexts: supabase/seed.ts, the
- * CRON_SECRET-gated /api/cron/fetch-news route, and Server Actions that
- * already re-verify requireSuperAdmin themselves (lib/news-scraper/run.ts).
+ * CRON_SECRET-gated /api/cron/fetch-news route, Server Actions that
+ * already re-verify requireSuperAdmin themselves (lib/news-scraper/run.ts),
+ * and the image proxy's read-only lookup of news_sources hostnames.
  */
 export function createAdminClient() {
   return createSupabaseClient<Database>(
