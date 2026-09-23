@@ -48,12 +48,14 @@ export default async function DirectoryListingPage({
 
           <div className="relative mb-6 w-full">
             {listing.image_url ? (
-              // Full image, no forced crop — a business photo can be any shape.
+              // Same 16:9 frame as the list cards (see LISTING_IMAGE_SIZE) —
+              // uploads are already cropped to it; object-cover keeps a
+              // pasted URL of some other shape from breaking the layout.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={listing.image_url}
                 alt=""
-                className="w-full rounded-2xl border border-border"
+                className="aspect-video w-full rounded-2xl border border-border object-cover"
               />
             ) : (
               <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted text-sm text-muted-foreground">

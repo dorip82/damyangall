@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ListingImageField } from "@/components/admin/ListingImageField";
+import { LISTING_IMAGE_SIZE } from "@/lib/directory/image";
 import {
   Select,
   SelectContent,
@@ -83,7 +84,7 @@ export function ListingForm({
         </div>
       </div>
 
-      <ListingImageField defaultValue={listing?.image_url} />
+      <ListingImageField defaultValue={listing?.image_url} resizeTo={LISTING_IMAGE_SIZE} />
 
       <div className="space-y-2">
         <Label htmlFor="instagramUrl">인스타그램 URL</Label>
