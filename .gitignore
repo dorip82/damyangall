@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 업체 가져오기 스크립트의 미리보기 결과
+scripts/kakao-places.json
