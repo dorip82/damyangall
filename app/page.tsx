@@ -1,69 +1,55 @@
-import { Megaphone } from "lucide-react";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalHero } from "@/components/main/PortalHero";
-import { ComingSoonBanner } from "@/components/main/ComingSoonBanner";
 import { SideBannerAds } from "@/components/main/SideBannerAds";
-import { NewsSection } from "@/components/main/NewsSection";
-import { TodaySection } from "@/components/main/TodaySection";
+import { StoriesSection } from "@/components/main/StoriesSection";
 import { DirectorySection } from "@/components/main/DirectorySection";
-import { ClubSitesSection } from "@/components/main/ClubSitesSection";
+import { NewsSection } from "@/components/main/NewsSection";
 import { CommunitySection } from "@/components/main/CommunitySection";
 import { EventsSection } from "@/components/main/EventsSection";
+import { ParticipateSection } from "@/components/main/ParticipateSection";
 import { PortalFooter } from "@/components/main/PortalFooter";
 import { getMainPageSettings } from "@/lib/main-settings/get-main-page-settings";
+import { createClient } from "@/lib/supabase/server";
 
 // Never statically/edge-cache this route — it renders host-dependent links
 // (see lib/site/get-site-url.ts) and must always reflect the real request.
 export const dynamic = "force-dynamic";
 
+/*
+ * 메인 포털 구성 (2026-11 리디자인):
+ *   히어로(통합 검색 + 오늘의 담양 패널) → 담양의 다양한 이야기(영역 카드)
+ *   → 업체·단체 찾기(지역정보 캐러셀 + 동아리·동호회) → 담양소식·커뮤니티
+ *   → 다가오는 행사 → 참여 안내 → 푸터.
+ * 모든 목록은 실제 DB 데이터만 쓰고, 데이터가 없으면 빈 상태 안내를 보여준다.
+ */
 export default async function RootPortalPage() {
-  const settings = await getMainPageSettings();
+  const supabase = await createClient();
+  const [settings, { data: userData }] = await Promise.all([
+    getMainPageSettings(),
+    supabase.auth.getUser(),
+  ]);
 
   return (
-    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
       <SideBannerAds />
-      <PortalHeader />
-      <main className="flex-1">
+      <PortalHeader overlay />
+      <main id="main-content" className="flex-1">
         <PortalHero title={settings.hero_title} subtitle={settings.hero_subtitle} />
 
-        {/* 스펙(ALLDAM_MASTER_SPEC.md §29) 기본 순서는 Hero → 담양소식 → 오늘의 담양
-            → 지역정보 → 동아리·동호회 → 커뮤니티 → 행사 → 광고이지만, 요청에 따라
-            커뮤니티·행사를 중간(지역정보 다음)으로 당기고 동아리·동호회는 광고 바로
-            앞, 맨 하단으로 옮겼다. 담양소식·오늘의 담양은 실데이터 섹션으로
-            활성화했고, 담양소식(콘텐츠 목록)과 오늘의 담양(실시간 통계 위젯)을
-            나란히 배치해 메인/사이드바 구도를 만든다. 광고는 아직 실데이터가 없어
-            /directory/admin/main 에서 문구를 편집할 수 있는 준비중 배너로 유지한다.
-            폭이 넓은 화면에서 한 줄짜리 배너/목록이 좌우로 텅 비어 보이지 않도록,
-            짝지을 수 있는 섹션은 그리드로 묶는다. */}
-        <section className="mx-auto max-w-6xl px-6 py-10">
-          <div className="grid gap-10 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <NewsSection />
-            </div>
-            <TodaySection />
-          </div>
-        </section>
+        <StoriesSection />
 
         <DirectorySection />
 
-        <section className="mx-auto max-w-6xl px-6 py-10">
-          <div className="grid gap-10 lg:grid-cols-2">
+        <section aria-label="담양소식과 커뮤니티" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-10">
+            <NewsSection />
             <CommunitySection />
-            <EventsSection />
           </div>
         </section>
 
-        <ClubSitesSection />
+        <EventsSection />
 
-        {settings.ad_banner_visible ? (
-          <section className="mx-auto max-w-6xl px-6 py-6">
-            <ComingSoonBanner
-              label={settings.ad_banner_title}
-              description={settings.ad_banner_description}
-              Icon={Megaphone}
-            />
-          </section>
-        ) : null}
+        <ParticipateSection isLoggedIn={Boolean(userData.user)} settings={settings} />
       </main>
       <PortalFooter />
     </div>

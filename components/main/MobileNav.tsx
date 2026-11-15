@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -10,38 +10,54 @@ import {
   DrawerClose,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
+import { PORTAL_NAV_LINKS } from "@/lib/main/nav";
 
-const NAV_LINKS = [
-  { href: "/news", label: "담양소식" },
-  { href: "/directory", label: "지역정보" },
-  { href: "/community", label: "커뮤니티" },
-  { href: "/events", label: "행사" },
-];
-
-/** The header's main <nav> is hidden below sm: this is the mobile fallback for it. */
-export function MobileNav() {
+/** The header's main <nav> is hidden below lg: this drawer is the fallback for it. */
+export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <Drawer swipeDirection="left">
       <DrawerTrigger
         render={
-          <Button variant="ghost" size="icon" className="sm:hidden" aria-label="메뉴 열기">
-            <Menu className="size-5" />
-          </Button>
+          <button
+            type="button"
+            aria-label="메뉴 열기"
+            className="-ml-2 flex size-10 items-center justify-center rounded-full transition-colors hover:bg-muted group-data-[transparent=true]:hover:bg-white/10 lg:hidden"
+          />
         }
-      />
-      <DrawerContent className="w-64">
+      >
+        <Menu className="size-5" aria-hidden />
+      </DrawerTrigger>
+      <DrawerContent className="site-theme portal-theme w-72 bg-background text-foreground">
         <DrawerHeader>
-          <DrawerTitle>메뉴</DrawerTitle>
+          <DrawerTitle className="text-lg font-extrabold text-primary">올담</DrawerTitle>
+          <p className="text-xs text-muted-foreground">담양의 모든 이야기를 담다</p>
         </DrawerHeader>
-        <nav className="flex flex-col gap-1 p-4 pt-2">
-          {NAV_LINKS.map((link) => (
+
+        <form action="/search" role="search" className="px-4">
+          <label htmlFor="mobile-search" className="sr-only">
+            통합 검색
+          </label>
+          <div className="flex h-11 items-center gap-2 rounded-full border border-input bg-card px-4">
+            <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <input
+              id="mobile-search"
+              type="search"
+              name="q"
+              placeholder="업체, 키워드, 소식 검색"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+        </form>
+
+        <nav aria-label="모바일 메뉴" className="flex flex-col gap-0.5 p-4">
+          {PORTAL_NAV_LINKS.map((link) => (
             <DrawerClose
+              nativeButton={false}
               key={link.href}
               render={
                 <Link
                   href={link.href}
-                  className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+                  className="rounded-lg px-3 py-3 text-[15px] font-medium text-foreground hover:bg-muted"
                 />
               }
             >
@@ -49,6 +65,33 @@ export function MobileNav() {
             </DrawerClose>
           ))}
         </nav>
+
+        {!isLoggedIn ? (
+          <div className="mt-auto grid grid-cols-2 gap-2 border-t border-border p-4">
+            <DrawerClose
+              nativeButton={false}
+              render={
+                <Link
+                  href="/login"
+                  className="rounded-full border border-border py-2.5 text-center text-sm font-medium hover:bg-muted"
+                />
+              }
+            >
+              로그인
+            </DrawerClose>
+            <DrawerClose
+              nativeButton={false}
+              render={
+                <Link
+                  href="/signup"
+                  className="rounded-full bg-primary py-2.5 text-center text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                />
+              }
+            >
+              회원가입
+            </DrawerClose>
+          </div>
+        ) : null}
       </DrawerContent>
     </Drawer>
   );

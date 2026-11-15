@@ -30,7 +30,7 @@ export function AccountMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground outline-none hover:text-foreground">
+      <DropdownMenuTrigger className="flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors hover:bg-muted group-data-[transparent=true]:hover:bg-white/10">
         <span className="hidden sm:inline">{nickname}님</span>
         <ChevronDown className="size-3.5" aria-hidden />
       </DropdownMenuTrigger>

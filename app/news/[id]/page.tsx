@@ -29,9 +29,9 @@ export default async function NewsDetailPage({
   if (!news) notFound();
 
   return (
-    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
       <PortalHeader />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <article className="mx-auto max-w-3xl px-6 py-16">
           <Link
             href="/news"

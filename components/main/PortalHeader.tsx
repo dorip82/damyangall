@@ -1,9 +1,17 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AccountMenu } from "@/components/main/AccountMenu";
 import { MobileNav } from "@/components/main/MobileNav";
+import { HeaderShell } from "@/components/main/HeaderShell";
+import { PortalNavLinks } from "@/components/main/PortalNavLinks";
+import { LogoMark } from "@/components/main/LogoMark";
 
-export async function PortalHeader() {
+/**
+ * @param overlay 메인 페이지 전용: 히어로 이미지 위에 투명하게 겹쳐 놓았다가
+ *   스크롤하면 밝은 고정 헤더로 바뀐다. 다른 페이지는 처음부터 밝은 고정 헤더.
+ */
+export async function PortalHeader({ overlay = false }: { overlay?: boolean } = {}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -22,57 +30,49 @@ export async function PortalHeader() {
   }
 
   return (
-    <header className="border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-6">
-        <MobileNav />
-        <Link href="/" className="flex items-center gap-3">
-          <span className="text-lg font-bold tracking-tight text-primary">올담</span>
-          <span className="hidden text-sm text-muted-foreground sm:inline">
-            담양의 모든 이야기를 담다
+    <HeaderShell overlay={overlay}>
+      <a
+        href="#main-content"
+        className="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50"
+      >
+        본문 바로가기
+      </a>
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:h-[72px]">
+        <MobileNav isLoggedIn={Boolean(user)} />
+
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-lg">
+          <LogoMark className="group-data-[transparent=true]:bg-ivory/15 group-data-[transparent=true]:ring-1 group-data-[transparent=true]:ring-ivory/30" />
+          <span className="flex flex-col leading-tight">
+            <span className="text-lg font-extrabold tracking-tight">올담</span>
+            <span className="hidden text-xs opacity-80 xl:inline">담양의 모든 이야기를 담다</span>
           </span>
         </Link>
 
-        <nav className="ml-8 hidden items-center gap-6 sm:flex">
-          <Link
-            href="/news"
-            className="text-sm font-medium text-foreground/80 hover:text-primary"
-          >
-            담양소식
-          </Link>
-          <Link
-            href="/directory"
-            className="text-sm font-medium text-foreground/80 hover:text-primary"
-          >
-            지역정보
-          </Link>
-          <Link
-            href="/community"
-            className="text-sm font-medium text-foreground/80 hover:text-primary"
-          >
-            커뮤니티
-          </Link>
-          <Link
-            href="/events"
-            className="text-sm font-medium text-foreground/80 hover:text-primary"
-          >
-            행사
-          </Link>
-        </nav>
+        <div className="ml-4 flex-1 xl:ml-8">
+          <PortalNavLinks />
+        </div>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <Link
+            href="/search"
+            aria-label="통합 검색"
+            className="flex size-10 items-center justify-center rounded-full transition-colors hover:bg-muted group-data-[transparent=true]:hover:bg-white/10"
+          >
+            <Search className="size-5" aria-hidden />
+          </Link>
           {user ? (
             <AccountMenu nickname={nickname} isSuperAdmin={isSuperAdmin} />
           ) : (
             <>
               <Link
                 href="/login"
-                className="text-sm font-medium text-foreground/80 hover:text-primary"
+                className="hidden rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-muted group-data-[transparent=true]:hover:bg-white/10 sm:inline-block"
               >
                 로그인
               </Link>
               <Link
                 href="/signup"
-                className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 group-data-[transparent=true]:bg-ivory group-data-[transparent=true]:text-primary group-data-[transparent=true]:hover:bg-white"
               >
                 회원가입
               </Link>
@@ -80,6 +80,6 @@ export async function PortalHeader() {
           )}
         </div>
       </div>
-    </header>
+    </HeaderShell>
   );
 }

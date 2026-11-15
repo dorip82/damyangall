@@ -42,9 +42,9 @@ export default async function NewsPage({
   const categoryQuery = activeCategory ? `category=${activeCategory}&` : "";
 
   return (
-    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
       <PortalHeader />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="mx-auto max-w-4xl px-6 py-16">
           <h1 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">담양소식</h1>
           <p className="mb-8 text-sm text-muted-foreground">

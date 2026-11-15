@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/site/get-site-url";
 import { getCategoryLabel } from "@/lib/directory/categories";
+import { getNewsCategoryLabel } from "@/lib/news/categories";
 import { PortalHeader } from "@/components/main/PortalHeader";
 import { PortalFooter } from "@/components/main/PortalFooter";
 
@@ -20,7 +21,7 @@ export default async function SearchPage({
   const safeQuery = query.replace(/[,()%*]/g, "").trim();
 
   const supabase = await createClient();
-  const [{ data: listings }, { data: sites }] = safeQuery
+  const [{ data: listings }, { data: sites }, { data: newsResults }] = safeQuery
     ? await Promise.all([
         supabase
           .from("directory_listings")
@@ -34,26 +35,35 @@ export default async function SearchPage({
           .eq("status", "ACTIVE")
           .or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`)
           .limit(20),
+        supabase
+          .from("news")
+          .select("id, category, title, created_at")
+          .eq("status", "PUBLISHED")
+          .or(`title.ilike.%${safeQuery}%,summary.ilike.%${safeQuery}%`)
+          .order("created_at", { ascending: false })
+          .limit(20),
       ])
-    : [{ data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: [] }];
 
   const siteResults = await Promise.all(
     (sites ?? []).map(async (site) => ({ ...site, url: await getSiteUrl(site.slug) }))
   );
 
-  const resultCount = (listings?.length ?? 0) + siteResults.length;
+  const resultCount =
+    (listings?.length ?? 0) + siteResults.length + (newsResults?.length ?? 0);
 
   return (
-    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
       <PortalHeader />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="mx-auto max-w-4xl px-6 py-16">
           <form action="/search" className="mb-8 flex gap-2">
             <input
               type="text"
               name="q"
               defaultValue={query}
-              placeholder="찾고 싶은 업체, 키워드를 입력해보세요"
+              placeholder="업체, 키워드, 소식을 검색해보세요"
+              aria-label="통합 검색"
               className="h-11 flex-1 rounded-full border border-border bg-background px-5 text-sm outline-none focus:border-accent"
             />
             <button
@@ -135,6 +145,34 @@ export default async function SearchPage({
                                 </span>
                               ) : null}
                             </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {newsResults && newsResults.length > 0 ? (
+                    <div>
+                      <h2 className="mb-4 text-lg font-bold text-foreground">
+                        담양소식 ({newsResults.length})
+                      </h2>
+                      <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
+                        {newsResults.map((news) => (
+                          <li key={news.id}>
+                            <Link
+                              href={`/news/${news.id}`}
+                              className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-muted"
+                            >
+                              <p className="min-w-0 truncate font-medium text-foreground">
+                                {news.title}
+                              </p>
+                              <span className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                                <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
+                                  {getNewsCategoryLabel(news.category)}
+                                </span>
+                                {new Date(news.created_at).toLocaleDateString("ko-KR")}
+                              </span>
+                            </Link>
                           </li>
                         ))}
                       </ul>

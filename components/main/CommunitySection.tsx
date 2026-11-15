@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCommunityCategoryLabel } from "@/lib/community/categories";
+import { SectionHeading } from "@/components/main/SectionHeading";
+import { EmptyBox } from "@/components/main/NewsSection";
 
+/**
+ * 커뮤니티 최신 글. 조회수·추천 같은 인기 지표는 저장하지 않으므로 "인기"가
+ * 아니라 최신순으로 보여준다.
+ */
 export async function CommunitySection() {
   const supabase = await createClient();
   const { data: posts } = await supabase
@@ -14,56 +20,50 @@ export async function CommunitySection() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground sm:text-3xl">커뮤니티</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            소통하고 나누며 함께 만들어가는 공간입니다.
-          </p>
-        </div>
-        <Link
-          href="/community"
-          className="flex shrink-0 items-center gap-1 text-sm font-medium text-accent hover:underline"
-        >
-          더보기
-          <ArrowRight className="size-4" aria-hidden />
-        </Link>
-      </div>
+      <SectionHeading
+        id="community-title"
+        eyebrow="Community"
+        title="커뮤니티 새 글"
+        description="소통하고 나누며 함께 만들어가는 공간입니다."
+        href="/community"
+      />
 
       {!posts?.length ? (
-        <div className="rounded-2xl border border-dashed border-border bg-muted/50 px-5 py-8 text-center">
-          <p className="text-sm text-muted-foreground">아직 등록된 글이 없습니다.</p>
-          <Link
-            href="/community/new"
-            className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
-          >
+        <EmptyBox>
+          아직 등록된 글이 없습니다.{" "}
+          <Link href="/community/new" className="font-semibold text-primary underline-offset-4 hover:underline">
             첫 번째 글을 남겨보세요
           </Link>
-        </div>
+        </EmptyBox>
       ) : (
-        <ul className="divide-y divide-border rounded-2xl border border-border">
+        <ul className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_2px_10px_rgba(27,42,34,0.05)]">
           {posts.map((post) => (
-            <li key={post.id}>
+            <li key={post.id} className="border-b border-border last:border-b-0">
               <Link
                 href={`/community/${post.id}`}
-                className="flex items-center gap-4 px-5 py-4 hover:bg-muted"
+                className="flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/70 sm:px-5"
               >
-                {post.image_url ? (
-                  <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.image_url} alt="" className="h-full w-full object-cover" />
-                  </div>
-                ) : null}
-                <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
+                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted text-muted-foreground sm:size-[72px]">
+                  {post.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={post.image_url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    <MessageCircle className="size-5" aria-hidden />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 font-semibold leading-snug text-foreground break-keep">
+                    {post.title}
+                  </p>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                    <span className="rounded-full bg-accent/12 px-2 py-0.5 font-semibold text-accent">
                       {getCommunityCategoryLabel(post.category)}
                     </span>
-                    <span className="truncate font-medium text-foreground">{post.title}</span>
-                  </div>
-                  <span className="shrink-0 text-sm text-muted-foreground">
-                    {post.author_name} · {new Date(post.created_at).toLocaleDateString("ko-KR")}
-                  </span>
+                    <span>{post.author_name}</span>
+                    <time dateTime={post.created_at}>
+                      {new Date(post.created_at).toLocaleDateString("ko-KR")}
+                    </time>
+                  </p>
                 </div>
               </Link>
             </li>

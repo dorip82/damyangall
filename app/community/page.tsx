@@ -42,9 +42,9 @@ export default async function CommunityPage({
   const categoryQuery = activeCategory ? `category=${activeCategory}&` : "";
 
   return (
-    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
       <PortalHeader />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="mx-auto max-w-4xl px-6 py-16">
           <div className="mb-8 flex items-center justify-between">
             <div>

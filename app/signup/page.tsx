@@ -5,9 +5,9 @@ import { SignupForm } from "@/components/main/SignupForm";
 
 export default function SignupPage() {
   return (
-    <div className="site-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
       <PortalHeader />
-      <main className="flex flex-1 items-center justify-center px-6 py-16">
+      <main id="main-content" className="flex flex-1 items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">올담</p>

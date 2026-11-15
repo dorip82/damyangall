@@ -155,6 +155,41 @@
   --radius: 0.375rem;
 }
 
+/*
+ * 올담 메인 포털 테마 — 대나무 숲(짙은 숲녹색·올리브)과 따뜻한 아이보리·베이지.
+ * site-theme 위에 덧씌워 동아리 사이트(app/site)는 기존 톤을 유지한다.
+ * accent는 본문 링크·배지 글자색으로도 쓰이므로 아이보리 배경에서 4.5:1 이상인
+ * 올리브(#55632a)를 쓴다 (기존 gold는 글자색 대비가 부족했다).
+ */
+.portal-theme {
+  --background: #f7f3ea;
+  --foreground: #1b2a22;
+  --card: #fffdf8;
+  --card-foreground: #1b2a22;
+  --primary: #1f4535;
+  --primary-foreground: #fbf8f1;
+  --secondary: #ece4d1;
+  --secondary-foreground: #1f4535;
+  --muted: #efe9da;
+  --muted-foreground: #56645a;
+  --accent: #55632a;
+  --accent-foreground: #ffffff;
+  --border: #e2d9c3;
+  --input: #d9ceb3;
+  --ring: #55632a;
+  --radius: 0.75rem;
+}
+
+.portal-theme :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* 어두운 배경(히어로·푸터·투명 헤더) 위에서는 밝은 포커스 링을 쓴다 */
+.portal-theme .on-dark :where(a, button, input, [tabindex]):focus-visible {
+  outline-color: #e9dcb4;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

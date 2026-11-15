@@ -17,7 +17,13 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
  * client's first render match (a real "now" would differ between them and
  * trigger a hydration mismatch), then fills in and updates once mounted.
  */
-export function CurrentTimeDisplay() {
+export function CurrentTimeDisplay({
+  className = "mb-3 flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-muted-foreground",
+  iconClassName = "size-4 shrink-0 text-accent",
+}: {
+  className?: string;
+  iconClassName?: string;
+} = {}) {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -34,8 +40,8 @@ export function CurrentTimeDisplay() {
   if (!now) return null;
 
   return (
-    <div className="mb-3 flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-muted-foreground">
-      <Clock className="size-4 shrink-0 text-accent" aria-hidden />
+    <div className={className}>
+      <Clock className={iconClassName} aria-hidden />
       {now.toLocaleString("ko-KR", TIME_FORMAT)}
     </div>
   );
