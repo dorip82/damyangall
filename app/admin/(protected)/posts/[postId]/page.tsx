@@ -3,6 +3,7 @@ import { getCurrentSiteSlug } from "@/lib/site/current-site";
 import { getSiteBySlug } from "@/lib/site/get-site-by-slug";
 import { createClient } from "@/lib/supabase/server";
 import { PostForm } from "@/components/admin/PostForm";
+import { getAssocConfig } from "@/lib/assoc/config";
 import { DeletePostButton } from "@/components/admin/DeletePostButton";
 import { updatePost } from "@/app/admin/(protected)/posts/actions";
 import type { SitePost } from "@/types/site";
@@ -17,6 +18,7 @@ export default async function AdminEditPostPage({
   if (!slug) redirect("/");
   const site = await getSiteBySlug(slug);
   if (!site) notFound();
+  const assocCategories = getAssocConfig(slug)?.postCategories.map((c) => c.label);
 
   const supabase = await createClient();
   const { data: post } = await supabase
@@ -36,7 +38,10 @@ export default async function AdminEditPostPage({
         <h1 className="text-xl font-bold text-foreground">활동내역 수정</h1>
         <DeletePostButton postId={post.id} siteId={site.id} />
       </div>
-      <PostForm siteId={site.id} post={post} action={boundUpdate} submitLabel="저장" />
+      <PostForm
+        siteId={site.id}
+        categories={assocCategories}
+        defaultCategory={assocCategories?.[0]} post={post} action={boundUpdate} submitLabel="저장" />
     </div>
   );
 }

@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
-import { NAV_ITEMS } from "@/components/admin/AdminSidebar";
+import { getAdminNav } from "@/components/admin/AdminSidebar";
 import type { Site } from "@/types/site";
 
-export function AdminHeader({ site }: { site: Site }) {
+export function AdminHeader({ site, isAssoc = false }: { site: Site; isAssoc?: boolean }) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-2">
         <AdminMobileNav
-          navItems={NAV_ITEMS.map(({ href, label, Icon }) => ({
+          navItems={getAdminNav(isAssoc).map(({ href, label, Icon }) => ({
             href,
             label,
             icon: <Icon className="size-4" aria-hidden />,

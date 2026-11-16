@@ -2,6 +2,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { AssetUploadButton } from "@/components/admin/AssetUpload";
 import type { OfficersBlockProps } from "@/lib/blocks/types";
 
 type Term = OfficersBlockProps["terms"][number];
@@ -26,7 +27,7 @@ export function OfficersBlockForm({
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        연도(또는 기수)별로 임원진을 입력합니다. 최근 연도를 위에 두면 홈페이지에도 그 순서로 보입니다.
+        연도(또는 기수)별로 임원진을 입력합니다. 맨 위 묶음이 현재 임원진으로 표시됩니다. 사진은 선택입니다. 최근 연도를 위에 두면 홈페이지에도 그 순서로 보입니다.
         이름이 비어 있는 줄은 표시되지 않습니다.
       </p>
       <div className="space-y-1.5">
@@ -61,7 +62,7 @@ export function OfficersBlockForm({
           </div>
 
           {term.members.map((m, mi) => (
-            <div key={mi} className="flex gap-2">
+            <div key={mi} className="flex flex-wrap gap-2">
               <Input
                 className="w-32"
                 value={m.role}
@@ -78,6 +79,25 @@ export function OfficersBlockForm({
                 onChange={(e) => {
                   const members = term.members.slice();
                   members[mi] = { ...m, name: e.target.value };
+                  updateTerm(ti, { ...term, members });
+                }}
+              />
+              <Input
+                className="w-40"
+                value={m.photo ?? ""}
+                placeholder="사진 URL (선택)"
+                onChange={(e) => {
+                  const members = term.members.slice();
+                  members[mi] = { ...m, photo: e.target.value || undefined };
+                  updateTerm(ti, { ...term, members });
+                }}
+              />
+              <AssetUploadButton
+                folder="people"
+                label="사진"
+                onUploaded={(asset) => {
+                  const members = term.members.slice();
+                  members[mi] = { ...m, photo: asset.url };
                   updateTerm(ti, { ...term, members });
                 }}
               />

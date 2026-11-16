@@ -13,6 +13,9 @@ const siteInfoSchema = z.object({
   email: z.string().optional(),
   address: z.string().optional(),
   instagramUrl: z.string().optional(),
+  facebookUrl: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  logoUrl: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
 });
@@ -34,6 +37,9 @@ export async function updateSiteInfo(
     email: formData.get("email"),
     address: formData.get("address"),
     instagramUrl: formData.get("instagramUrl"),
+    facebookUrl: formData.get("facebookUrl") ?? undefined,
+    websiteUrl: formData.get("websiteUrl") ?? undefined,
+    logoUrl: formData.get("logoUrl") ?? undefined,
     seoTitle: formData.get("seoTitle"),
     seoDescription: formData.get("seoDescription"),
   });
@@ -59,6 +65,9 @@ export async function updateSiteInfo(
       email: values.email || null,
       address: values.address || null,
       instagram_url: values.instagramUrl || null,
+      facebook_url: values.facebookUrl || null,
+      website_url: values.websiteUrl || null,
+      logo_url: values.logoUrl || null,
     })
     .eq("id", values.siteId);
 

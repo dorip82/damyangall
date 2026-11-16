@@ -11,6 +11,7 @@ import { DividerBlock } from "@/components/blocks/DividerBlock";
 import { SpacerBlock } from "@/components/blocks/SpacerBlock";
 import { HeroSlider } from "@/components/club/HeroSlider";
 import { OfficersSection } from "@/components/club/OfficersSection";
+import { TimelineSection } from "@/components/blocks/TimelineSection";
 
 /**
  * Renders one block. `content` is untrusted JSONB from the database, so an
@@ -42,6 +43,8 @@ function renderBlock(block: AnyBlock, siteId: string) {
       return <HeroSlider slides={block.props.slides ?? []} interval={block.props.interval} />;
     case "officers":
       return <OfficersSection {...block.props} />;
+    case "timeline":
+      return <TimelineSection {...block.props} />;
     default:
       if (process.env.NODE_ENV !== "production") {
         console.warn("BlockRenderer: unknown block type", block);

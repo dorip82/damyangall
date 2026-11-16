@@ -17,3 +17,9 @@ export type SitePost = Omit<
   Database["public"]["Tables"]["site_posts"]["Row"],
   "content"
 > & { content: PageContent };
+
+export type SiteClub = Database["public"]["Tables"]["site_clubs"]["Row"];
+export type SiteTournament = Database["public"]["Tables"]["site_tournaments"]["Row"];
+export type SiteTournamentApplication = Database["public"]["Tables"]["site_tournament_applications"]["Row"];
+export type SiteTournamentMatch = Database["public"]["Tables"]["site_tournament_matches"]["Row"];
+export type SiteFile = Database["public"]["Tables"]["site_files"]["Row"];

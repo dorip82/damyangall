@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { AssetUploadButton } from "@/components/admin/AssetUpload";
 import type { SliderBlockProps, SliderSlide } from "@/lib/blocks/types";
 
 export function SliderBlockForm({
@@ -71,7 +72,10 @@ export function SliderBlockForm({
           </div>
           <div className="space-y-1.5">
             <Label>이미지 URL</Label>
-            <Input value={slide.image} placeholder="https://… 또는 /images/…" onChange={(e) => update(i, { image: e.target.value })} />
+            <div className="flex gap-2">
+              <Input value={slide.image} placeholder="https://… 또는 /images/…" onChange={(e) => update(i, { image: e.target.value })} />
+              <AssetUploadButton folder="slides" onUploaded={(a) => update(i, { image: a.url })} />
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label>이미지 설명 (시각장애인용 대체 텍스트)</Label>
@@ -84,6 +88,28 @@ export function SliderBlockForm({
           <div className="space-y-1.5">
             <Label>보조 문구</Label>
             <Textarea rows={2} value={slide.subtitle ?? ""} onChange={(e) => update(i, { subtitle: e.target.value })} />
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label>작은 머리 문구 (선택)</Label>
+              <Input value={slide.eyebrow ?? ""} onChange={(e) => update(i, { eyebrow: e.target.value || undefined })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>버튼 글자 (선택)</Label>
+              <Input
+                value={slide.buttonLabel ?? ""}
+                placeholder="예: 대회 안내 보기"
+                onChange={(e) => update(i, { buttonLabel: e.target.value || undefined })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>버튼 링크 (선택)</Label>
+              <Input
+                value={slide.buttonHref ?? ""}
+                placeholder="예: /tournament"
+                onChange={(e) => update(i, { buttonHref: e.target.value || undefined })}
+              />
+            </div>
           </div>
         </div>
       ))}

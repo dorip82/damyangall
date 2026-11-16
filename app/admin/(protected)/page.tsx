@@ -4,12 +4,15 @@ import { getCurrentSiteSlug } from "@/lib/site/current-site";
 import { getSiteBySlug } from "@/lib/site/get-site-by-slug";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { isAssocSlug } from "@/lib/assoc/config";
+import { AssocDashboard } from "@/components/admin/assoc/AssocDashboard";
 
 export default async function AdminDashboardPage() {
   const slug = await getCurrentSiteSlug();
   if (!slug) redirect("/");
   const site = await getSiteBySlug(slug);
   if (!site) notFound();
+  if (isAssocSlug(slug)) return <AssocDashboard site={site} />;
 
   const supabase = await createClient();
   const [

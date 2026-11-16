@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { AssetUploadButton } from "@/components/admin/AssetUpload";
 import { toast } from "sonner";
 import type { PostFormState } from "@/app/admin/(protected)/posts/actions";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,11 @@ export function PostForm({
   post,
   action,
   submitLabel,
+  categories = STANDARD_POST_CATEGORIES,
+  defaultCategory = "활동내역",
 }: {
+  categories?: readonly string[];
+  defaultCategory?: string;
   siteId: string;
   post?: SitePost;
   action: (prevState: PostFormState, formData: FormData) => Promise<PostFormState>;
@@ -49,6 +54,9 @@ export function PostForm({
   const initialPhotos =
     galleryBlock?.type === "gallery" ? galleryBlock.props.images.map((img) => img.url).join("\n") : "";
 
+  const [photos, setPhotos] = useState(initialPhotos);
+  const [thumb, setThumb] = useState(post?.thumbnail_url ?? "");
+
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
       <input type="hidden" name="siteId" value={siteId} />
@@ -64,15 +72,15 @@ export function PostForm({
           id="category"
           name="category"
           list="post-category-options"
-          defaultValue={post?.category ?? "활동내역"}
+          defaultValue={post?.category ?? defaultCategory}
         />
         <datalist id="post-category-options">
-          {STANDARD_POST_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <option key={c} value={c} />
           ))}
         </datalist>
         <p className="text-xs text-muted-foreground">
-          {STANDARD_POST_CATEGORIES.join(" · ")} 중에서 고르면 홈페이지 활동소식의 같은 이름 탭에 정확히 분류됩니다.
+          {categories.join(" · ")} 중에서 고르면 홈페이지의 같은 이름 메뉴에 정확히 분류됩니다.
         </p>
       </div>
 
@@ -107,7 +115,14 @@ export function PostForm({
           name="photoUrls"
           rows={4}
           placeholder={"https://…/photo1.jpg\nhttps://…/photo2.jpg"}
-          defaultValue={initialPhotos}
+          value={photos}
+          onChange={(e) => setPhotos(e.target.value)}
+        />
+        <AssetUploadButton
+          siteId={siteId}
+          folder="posts"
+          label="사진 올리기 (여러 번 가능)"
+          onUploaded={(asset) => setPhotos((v) => (v.trim() ? v.trim() + String.fromCharCode(10) + asset.url : asset.url))}
         />
         <p className="text-xs text-muted-foreground">
           입력한 사진은 게시물 아래 갤러리와 &quot;활동 사진&quot; 모음에 표시되고, 누르면 크게 볼 수 있습니다.
@@ -120,8 +135,10 @@ export function PostForm({
           id="thumbnailUrl"
           name="thumbnailUrl"
           placeholder="비워두면 유튜브 썸네일을 자동으로 사용합니다"
-          defaultValue={post?.thumbnail_url ?? ""}
+          value={thumb}
+          onChange={(e) => setThumb(e.target.value)}
         />
+        <AssetUploadButton siteId={siteId} folder="posts" label="썸네일 올리기" onUploaded={(a) => setThumb(a.url)} />
       </div>
 
       <div className="space-y-2">

@@ -78,6 +78,9 @@ export const sliderBlockSchema = z.object({
         alt: z.string().optional(),
         title: z.string().optional(),
         subtitle: z.string().optional(),
+        eyebrow: z.string().optional(),
+        buttonLabel: z.string().optional(),
+        buttonHref: z.string().optional(),
       })
     )
     .min(1, "슬라이드를 1개 이상 추가해주세요"),
@@ -89,7 +92,18 @@ export const officersBlockSchema = z.object({
   terms: z.array(
     z.object({
       label: z.string().min(1, "기수/연도를 입력해주세요"),
-      members: z.array(z.object({ role: z.string(), name: z.string() })),
+      members: z.array(z.object({ role: z.string(), name: z.string(), photo: z.string().optional() })),
+    })
+  ),
+});
+
+export const timelineBlockSchema = z.object({
+  title: z.string().optional(),
+  items: z.array(
+    z.object({
+      date: z.string().min(1, "날짜(연도)를 입력해주세요"),
+      title: z.string().min(1, "내용을 입력해주세요"),
+      description: z.string().optional(),
     })
   ),
 });
@@ -107,6 +121,7 @@ export const blockSchemaByType = {
   spacer: spacerBlockSchema,
   slider: sliderBlockSchema,
   officers: officersBlockSchema,
+  timeline: timelineBlockSchema,
 } as const;
 
 export const pageContentSchema = z.object({
@@ -127,6 +142,7 @@ export const pageContentSchema = z.object({
         "spacer",
         "slider",
         "officers",
+        "timeline",
       ]),
       props: z.record(z.string(), z.unknown()),
     })

@@ -10,7 +10,8 @@ export type BlockType =
   | "divider"
   | "spacer"
   | "slider"
-  | "officers";
+  | "officers"
+  | "timeline";
 
 export interface HeroBlockProps {
   title: string;
@@ -92,6 +93,11 @@ export interface SliderSlide {
   alt?: string;
   title?: string;
   subtitle?: string;
+  /** 제목 위 작은 문구 */
+  eyebrow?: string;
+  /** 버튼 (둘 다 있을 때만 표시) */
+  buttonLabel?: string;
+  buttonHref?: string;
 }
 
 export interface SliderBlockProps {
@@ -106,8 +112,14 @@ export interface OfficersBlockProps {
   terms: {
     /** 예: "2026년", "제3기 (2025~2026)" */
     label: string;
-    members: { role: string; name: string }[];
+    members: { role: string; name: string; photo?: string }[];
   }[];
+}
+
+/** 연혁 — 연도별 주요 일 */
+export interface TimelineBlockProps {
+  title?: string;
+  items: { date: string; title: string; description?: string }[];
 }
 
 export type BlockPropsMap = {
@@ -123,6 +135,7 @@ export type BlockPropsMap = {
   spacer: SpacerBlockProps;
   slider: SliderBlockProps;
   officers: OfficersBlockProps;
+  timeline: TimelineBlockProps;
 };
 
 export type Block<T extends BlockType = BlockType> = {

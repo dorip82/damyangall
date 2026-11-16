@@ -14,6 +14,9 @@ export type SiteStatus =
   | "REJECTED"
   | "SUSPENDED"
   | "ARCHIVED";
+export type TournamentStatus = "PREPARING" | "OPEN" | "CLOSED" | "ONGOING" | "FINISHED";
+export type ApplicationStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type MatchStatus = "SCHEDULED" | "LIVE" | "FINISHED" | "CANCELLED";
 export type SiteMemberRole = "SITE_ADMIN" | "EDITOR" | "MEMBER";
 export type SiteMemberStatus = "ACTIVE" | "PENDING" | "SUSPENDED";
 export type SiteTemplateCategory =
@@ -271,6 +274,9 @@ export interface Database {
           status: InquiryStatus;
           reply_content: string | null;
           replied_at: string | null;
+          is_private: boolean;
+          inquiry_type: string | null;
+          privacy_agreed_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -283,6 +289,119 @@ export interface Database {
           content: string;
         };
         Update: Partial<Database["public"]["Tables"]["site_inquiries"]["Row"]>;
+        Relationships: [];
+      };
+      site_clubs: {
+        Row: {
+          id: string;
+          site_id: string;
+          name: string;
+          leader: string | null;
+          location: string | null;
+          schedule: string | null;
+          description: string | null;
+          image_url: string | null;
+          contact: string | null;
+          is_recruiting: boolean;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_clubs"]["Row"]> & { site_id: string; name: string };
+        Update: Partial<Database["public"]["Tables"]["site_clubs"]["Row"]>;
+        Relationships: [];
+      };
+      site_tournaments: {
+        Row: {
+          id: string;
+          site_id: string;
+          title: string;
+          summary: string | null;
+          description: string | null;
+          start_date: string | null;
+          end_date: string | null;
+          venue: string | null;
+          apply_start: string | null;
+          apply_end: string | null;
+          max_teams: number | null;
+          division: string | null;
+          host: string | null;
+          fee: string | null;
+          contact: string | null;
+          poster_url: string | null;
+          photo_urls: string[];
+          result_summary: string | null;
+          status: TournamentStatus;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_tournaments"]["Row"]> & { site_id: string; title: string };
+        Update: Partial<Database["public"]["Tables"]["site_tournaments"]["Row"]>;
+        Relationships: [];
+      };
+      site_tournament_applications: {
+        Row: {
+          id: string;
+          site_id: string;
+          tournament_id: string;
+          team_name: string;
+          leader_name: string;
+          phone: string;
+          affiliation: string | null;
+          players: string[];
+          notes: string | null;
+          status: ApplicationStatus;
+          admin_memo: string | null;
+          privacy_agreed_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_tournament_applications"]["Row"]> & { site_id: string; tournament_id: string; team_name: string; leader_name: string; phone: string; privacy_agreed_at: string };
+        Update: Partial<Database["public"]["Tables"]["site_tournament_applications"]["Row"]>;
+        Relationships: [];
+      };
+      site_tournament_matches: {
+        Row: {
+          id: string;
+          site_id: string;
+          tournament_id: string;
+          round: string;
+          match_no: number | null;
+          scheduled_at: string | null;
+          court: string | null;
+          team_a: string;
+          team_b: string;
+          score_a: number | null;
+          score_b: number | null;
+          status: MatchStatus;
+          note: string | null;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_tournament_matches"]["Row"]> & { site_id: string; tournament_id: string };
+        Update: Partial<Database["public"]["Tables"]["site_tournament_matches"]["Row"]>;
+        Relationships: [];
+      };
+      site_files: {
+        Row: {
+          id: string;
+          site_id: string;
+          category: string;
+          title: string;
+          description: string | null;
+          file_url: string;
+          file_name: string;
+          file_size: number | null;
+          download_count: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_files"]["Row"]> & { site_id: string; title: string; file_url: string; file_name: string };
+        Update: Partial<Database["public"]["Tables"]["site_files"]["Row"]>;
         Relationships: [];
       };
       directory_listings: {
@@ -488,6 +607,30 @@ export interface Database {
       increment_site_post_view: {
         Args: { target_post_id: string };
         Returns: void;
+      };
+      increment_site_file_download: {
+        Args: { target_file_id: string };
+        Returns: void;
+      };
+      get_tournament_teams: {
+        Args: { target_tournament_id: string };
+        Returns: { team_name: string; affiliation: string | null }[];
+      };
+      get_site_members: {
+        Args: { target_site_id: string };
+        Returns: {
+          member_id: string;
+          user_id: string;
+          email: string;
+          name: string | null;
+          role: SiteMemberRole;
+          status: SiteMemberStatus;
+          joined_at: string;
+        }[];
+      };
+      add_site_member_by_email: {
+        Args: { target_site_id: string; member_email: string; member_role: SiteMemberRole };
+        Returns: string;
       };
     };
     Enums: {

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import type { Site, SiteSettings } from "@/types/site";
+import { ImageUrlField } from "@/components/admin/AssetUpload";
 
 const initialState: SiteInfoFormState = { ok: false };
 
@@ -32,7 +33,7 @@ export function SiteInfoForm({
       <input type="hidden" name="siteId" value={site.id} />
 
       <div className="space-y-2">
-        <Label htmlFor="name">동아리 이름</Label>
+        <Label htmlFor="name">이름</Label>
         <Input id="name" name="name" defaultValue={site.name} required />
       </div>
 
@@ -77,6 +78,23 @@ export function SiteInfoForm({
           name="instagramUrl"
           defaultValue={site.instagram_url ?? ""}
         />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="facebookUrl">페이스북 URL</Label>
+          <Input id="facebookUrl" name="facebookUrl" placeholder="https://facebook.com/..." defaultValue={site.facebook_url ?? ""} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="websiteUrl">블로그 · 기타 홈페이지 URL</Label>
+          <Input id="websiteUrl" name="websiteUrl" placeholder="https://..." defaultValue={site.website_url ?? ""} />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="logoUrl">로고 이미지 URL (선택)</Label>
+        <ImageUrlField siteId={site.id} name="logoUrl" defaultValue={site.logo_url} folder="logo" />
+        <p className="text-xs text-muted-foreground">비워두면 기본 심볼을 사용합니다.</p>
       </div>
 
       <div className="space-y-2 border-t border-border pt-6">

@@ -15,6 +15,8 @@ import { ContactBlockForm } from "@/components/admin/block-forms/ContactBlockFor
 import { SnsBlockForm } from "@/components/admin/block-forms/SnsBlockForm";
 import { SliderBlockForm } from "@/components/admin/block-forms/SliderBlockForm";
 import { OfficersBlockForm } from "@/components/admin/block-forms/OfficersBlockForm";
+import { TimelineBlockForm } from "@/components/admin/block-forms/TimelineBlockForm";
+import { AdminSiteIdContext } from "@/components/admin/AssetUpload";
 import type { AnyBlock, BlockPropsMap, BlockType } from "@/lib/blocks/types";
 
 const BLOCK_LABELS: Record<AnyBlock["type"], string> = {
@@ -29,7 +31,8 @@ const BLOCK_LABELS: Record<AnyBlock["type"], string> = {
   divider: "구분선",
   spacer: "여백",
   slider: "메인 슬라이드",
-  officers: "역대 임원진",
+  officers: "임원진",
+  timeline: "연혁",
 };
 
 /** "블록 추가"로 새로 만들 때의 기본값 */
@@ -46,6 +49,7 @@ const NEW_BLOCK_PROPS: { [K in BlockType]: BlockPropsMap[K] } = {
   spacer: { height: "md" },
   slider: { slides: [{ image: "" }], interval: 6 },
   officers: { terms: [] },
+  timeline: { items: [] },
 };
 
 const ADDABLE_TYPES: BlockType[] = [
@@ -53,6 +57,7 @@ const ADDABLE_TYPES: BlockType[] = [
   "gallery",
   "image",
   "officers",
+  "timeline",
   "slider",
   "card",
   "contact",
@@ -89,6 +94,8 @@ function BlockFormFor({
       return <SliderBlockForm value={block.props} onChange={onChange} />;
     case "officers":
       return <OfficersBlockForm value={block.props} onChange={onChange} />;
+    case "timeline":
+      return <TimelineBlockForm value={block.props} onChange={onChange} />;
     case "divider":
     case "spacer":
       return <p className="text-sm text-muted-foreground">설정할 항목이 없습니다.</p>;
@@ -154,6 +161,7 @@ export function PageBlocksEditor({
   }
 
   return (
+    <AdminSiteIdContext value={siteId}>
     <div className="space-y-6">
       {blocks.map((block, i) => (
         <div key={block.id} className="rounded-md border border-border p-4">
@@ -207,5 +215,6 @@ export function PageBlocksEditor({
         {pending ? "저장 중..." : "저장"}
       </Button>
     </div>
+    </AdminSiteIdContext>
   );
 }

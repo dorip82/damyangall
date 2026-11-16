@@ -232,6 +232,55 @@
   outline-color: var(--club-yellow);
 }
 
+/* 담양군농구협회 (app/assoc) — 네이비 · 블루 · 그린 · 농구공 오렌지 */
+.assoc-theme {
+  --dba-navy: #10264f;
+  --dba-navy-deep: #0a1a38;
+  --dba-blue: #174f91;
+  --dba-green: #10966b;
+  /* 글자색으로 쓸 때 흰 배경 대비 4.5:1 이상 */
+  --dba-green-text: #0b7553;
+  --dba-orange: #f28c28;
+  --dba-orange-text: #b35a0a;
+  --dba-soft: #f3f6fa;
+
+  --background: #ffffff;
+  --foreground: #142036;
+  --card: #ffffff;
+  --card-foreground: #142036;
+  --popover: #ffffff;
+  --popover-foreground: #142036;
+  --primary: var(--dba-navy);
+  --primary-foreground: #ffffff;
+  --secondary: var(--dba-soft);
+  --secondary-foreground: var(--dba-navy);
+  --muted: var(--dba-soft);
+  --muted-foreground: #556178;
+  --accent: var(--dba-blue);
+  --accent-foreground: #ffffff;
+  --border: #dfe5ee;
+  --input: #cfd7e3;
+  --ring: var(--dba-blue);
+  --radius: 0.75rem;
+
+  /* 공용 블록(TextBlock 등)이 쓰는 클럽 토큰을 협회 색으로 연결 */
+  --club-navy: var(--dba-navy);
+  --club-navy-deep: var(--dba-navy-deep);
+  --club-green: var(--dba-green);
+  --club-green-dark: var(--dba-green-text);
+  --club-green-light: #e3f3ed;
+  --club-beige: var(--dba-soft);
+  --club-yellow: var(--dba-orange);
+}
+
+.assoc-theme :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--dba-blue);
+  outline-offset: 2px;
+}
+.assoc-theme .on-dark :where(a, button, summary, [tabindex]):focus-visible {
+  outline-color: var(--dba-orange);
+}
+
 .font-hand {
   font-family: var(--font-hand), "Pretendard Variable", sans-serif;
 }

@@ -2,8 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { resolveSubdomain, normalizeRootDomain } from "@/lib/utils/domain";
 import { SITE_SLUG_HEADER } from "@/lib/site/current-site";
+import { isAssocSlug } from "@/lib/assoc/config";
 
 const PUBLIC_PREFIX = "/site";
+const ASSOC_PREFIX = "/assoc";
 
 /**
  * app/page.tsx (root portal placeholder) and app/site/page.tsx (a club's
@@ -26,7 +28,9 @@ const PUBLIC_PREFIX = "/site";
  * app/site/sitemap.xml to rewrite onto, so all three must keep resolving to
  * the root app/robots.ts, app/rss.xml, and app/sitemap.ts everywhere.
  */
-function rewrittenPathname(pathname: string): string {
+function rewrittenPathname(pathname: string, prefix: string): string {
+  // 협회형 사이트는 자기 페이지 목록을 담은 sitemap.xml 을 따로 낸다 (app/assoc/sitemap.xml)
+  if (prefix === ASSOC_PREFIX && pathname === "/sitemap.xml") return `${ASSOC_PREFIX}/sitemap.xml`;
   if (
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
@@ -36,7 +40,7 @@ function rewrittenPathname(pathname: string): string {
   ) {
     return pathname;
   }
-  return pathname === "/" ? PUBLIC_PREFIX : `${PUBLIC_PREFIX}${pathname}`;
+  return pathname === "/" ? prefix : `${prefix}${pathname}`;
 }
 
 export async function middleware(request: NextRequest) {
@@ -55,7 +59,8 @@ export async function middleware(request: NextRequest) {
   function buildResponse() {
     if (!subdomain) return NextResponse.next({ request });
     const url = request.nextUrl.clone();
-    url.pathname = rewrittenPathname(url.pathname);
+    // 협회형 사이트(담양군농구협회 등)는 화면 구조가 달라 별도 트리(app/assoc)를 쓴다.
+    url.pathname = rewrittenPathname(url.pathname, isAssocSlug(subdomain) ? ASSOC_PREFIX : PUBLIC_PREFIX);
     return NextResponse.rewrite(url, { request });
   }
 
