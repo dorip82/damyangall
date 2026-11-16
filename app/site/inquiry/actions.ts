@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getInquiryType } from "@/lib/site/inquiry-types";
 
 const inquirySchema = z.object({
   siteId: z.string().uuid(),
@@ -38,6 +39,10 @@ export async function createInquiry(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
   }
   const values = parsed.data;
+  const inquiryType = getInquiryType(formData.get("inquiryType")?.toString());
+  const title = inquiryType
+    ? `[${inquiryType.short}] ${values.title}`.slice(0, 200)
+    : values.title;
 
   const supabase = await createClient();
   const { data: inquiry, error } = await supabase
@@ -46,7 +51,7 @@ export async function createInquiry(
       site_id: values.siteId,
       author_name: values.authorName,
       author_contact: values.authorContact || null,
-      title: values.title,
+      title,
       content: values.content,
     })
     .select("id")

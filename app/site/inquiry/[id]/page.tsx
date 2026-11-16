@@ -29,19 +29,20 @@ export default async function InquiryDetailPage({
   if (!inquiry) notFound();
 
   return (
-    <article className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{inquiry.title}</h1>
+    <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:py-16">
+      <p className="font-hand text-2xl text-[var(--club-green-dark)]">문의 게시판</p>
+      <h1 className="text-2xl font-extrabold tracking-tight text-primary break-keep sm:text-3xl">{inquiry.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {inquiry.author_name} ·{" "}
         {new Date(inquiry.created_at).toLocaleDateString("ko-KR")}
       </p>
-      <div className="mt-8 whitespace-pre-line text-base leading-relaxed text-foreground/80">
+      <div className="mt-8 rounded-2xl border border-border bg-white p-6 whitespace-pre-line text-base leading-relaxed text-foreground/85 shadow-[0_4px_18px_rgba(30,53,92,0.06)]">
         {inquiry.content}
       </div>
 
       {inquiry.reply_content ? (
-        <div className="mt-10 border-l-2 border-accent bg-muted p-5">
-          <p className="mb-2 text-sm font-semibold text-accent">소리향기 답변</p>
+        <div className="mt-8 rounded-2xl border-l-4 border-[var(--club-green)] bg-[var(--club-green-light)] p-6">
+          <p className="mb-2 text-sm font-bold text-[var(--club-green-dark)]">{site.name} 답변</p>
           <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
             {inquiry.reply_content}
           </p>

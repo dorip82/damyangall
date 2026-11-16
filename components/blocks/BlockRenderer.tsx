@@ -9,6 +9,8 @@ import { ContactBlock } from "@/components/blocks/ContactBlock";
 import { SnsBlock } from "@/components/blocks/SnsBlock";
 import { DividerBlock } from "@/components/blocks/DividerBlock";
 import { SpacerBlock } from "@/components/blocks/SpacerBlock";
+import { HeroSlider } from "@/components/club/HeroSlider";
+import { OfficersSection } from "@/components/club/OfficersSection";
 
 /**
  * Renders one block. `content` is untrusted JSONB from the database, so an
@@ -36,6 +38,10 @@ function renderBlock(block: AnyBlock, siteId: string) {
       return <DividerBlock {...block.props} />;
     case "spacer":
       return <SpacerBlock {...block.props} />;
+    case "slider":
+      return <HeroSlider slides={block.props.slides ?? []} interval={block.props.interval} />;
+    case "officers":
+      return <OfficersSection {...block.props} />;
     default:
       if (process.env.NODE_ENV !== "production") {
         console.warn("BlockRenderer: unknown block type", block);

@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { SitePost } from "@/types/site";
+import { STANDARD_POST_CATEGORIES } from "@/lib/site/posts";
 
 const POST_STATUS_LABELS = { DRAFT: "임시저장", PUBLISHED: "게시" } as const;
 function getPostStatusLabel(status: string): string {
@@ -44,6 +45,9 @@ export function PostForm({
 
   const initialContent =
     post?.content.blocks.find((b) => b.type === "text")?.props.content ?? "";
+  const galleryBlock = post?.content.blocks.find((b) => b.type === "gallery");
+  const initialPhotos =
+    galleryBlock?.type === "gallery" ? galleryBlock.props.images.map((img) => img.url).join("\n") : "";
 
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
@@ -59,8 +63,17 @@ export function PostForm({
         <Input
           id="category"
           name="category"
+          list="post-category-options"
           defaultValue={post?.category ?? "활동내역"}
         />
+        <datalist id="post-category-options">
+          {STANDARD_POST_CATEGORIES.map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
+        <p className="text-xs text-muted-foreground">
+          {STANDARD_POST_CATEGORIES.join(" · ")} 중에서 고르면 홈페이지 활동소식의 같은 이름 탭에 정확히 분류됩니다.
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -84,6 +97,20 @@ export function PostForm({
         />
         <p className="text-xs text-muted-foreground">
           입력하면 목록에는 유튜브 썸네일이, 상세 페이지에는 재생 가능한 영상이 표시됩니다.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="photoUrls">활동 사진 URL (선택, 한 줄에 하나)</Label>
+        <Textarea
+          id="photoUrls"
+          name="photoUrls"
+          rows={4}
+          placeholder={"https://…/photo1.jpg\nhttps://…/photo2.jpg"}
+          defaultValue={initialPhotos}
+        />
+        <p className="text-xs text-muted-foreground">
+          입력한 사진은 게시물 아래 갤러리와 &quot;활동 사진&quot; 모음에 표시되고, 누르면 크게 볼 수 있습니다.
         </p>
       </div>
 

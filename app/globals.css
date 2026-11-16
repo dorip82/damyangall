@@ -190,6 +190,79 @@
   outline-color: #e9dcb4;
 }
 
+/*
+ * 동아리 사이트(app/site) 공통 테마 — 네이비·포레스트 그린·소프트 베이지.
+ * site-theme 위에 덧씌운다. 손글씨 폰트 변수(--font-hand, --font-brush)는
+ * app/site/layout.tsx 에서 next/font 로 주입한다.
+ */
+.club-theme {
+  --club-navy: #1e355c;
+  --club-navy-deep: #16284a;
+  --club-green: #5b8e36;
+  --club-green-dark: #44702a;
+  --club-green-light: #e5eedb;
+  --club-beige: #f5f2ea;
+  --club-yellow: #f5d928;
+
+  --background: #ffffff;
+  --foreground: #1f2a3c;
+  --card: #ffffff;
+  --card-foreground: #1f2a3c;
+  --primary: var(--club-navy);
+  --primary-foreground: #ffffff;
+  --secondary: var(--club-green-light);
+  --secondary-foreground: var(--club-navy);
+  --muted: var(--club-beige);
+  --muted-foreground: #5d6677;
+  /* 글자색으로도 쓰이므로 흰 배경 대비 4.5:1 이상인 진한 녹색 */
+  --accent: var(--club-green-dark);
+  --accent-foreground: #ffffff;
+  --border: #e4e1d8;
+  --input: #d9d5ca;
+  --ring: var(--club-green);
+  --radius: 0.75rem;
+}
+
+.club-theme :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--club-green);
+  outline-offset: 2px;
+}
+
+.club-theme .on-dark :where(a, button, [tabindex]):focus-visible {
+  outline-color: var(--club-yellow);
+}
+
+.font-hand {
+  font-family: var(--font-hand), "Pretendard Variable", sans-serif;
+}
+
+.font-brush {
+  font-family: var(--font-brush), var(--font-hand), "Pretendard Variable", sans-serif;
+}
+
+/* 스크롤 시 콘텐츠가 부드럽게 나타나는 효과 (components/club/Reveal.tsx) */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

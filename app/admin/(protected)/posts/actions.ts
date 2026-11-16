@@ -14,6 +14,7 @@ const postSchema = z.object({
   category: z.string().optional(),
   content: z.string().min(1, "내용을 입력해주세요"),
   thumbnailUrl: z.string().optional(),
+  photoUrls: z.string().max(10000).optional(),
   videoUrl: z
     .string()
     .optional()
@@ -28,10 +29,21 @@ export interface PostFormState {
   error?: string;
 }
 
-function toPageContent(text: string): PageContent {
+/** 본문 글 + (있으면) 활동 사진 갤러리. 사진 URL은 한 줄에 하나, http(s) 또는 / 로 시작하는 것만. */
+function toPageContent(text: string, photoUrls?: string): PageContent {
+  const photos = (photoUrls ?? "")
+    .split(/\r?\n/)
+    .map((u) => u.trim())
+    .filter((u) => /^(https?:\/\/|\/)/.test(u))
+    .slice(0, 60);
   return {
     version: 1,
-    blocks: [{ id: "block-content", type: "text", props: { content: text } }],
+    blocks: [
+      { id: "block-content", type: "text", props: { content: text } },
+      ...(photos.length
+        ? [{ id: "block-photos", type: "gallery" as const, props: { images: photos.map((url) => ({ url })) } }]
+        : []),
+    ],
   };
 }
 
@@ -45,6 +57,7 @@ export async function createPost(
     category: formData.get("category"),
     content: formData.get("content"),
     thumbnailUrl: formData.get("thumbnailUrl"),
+    photoUrls: formData.get("photoUrls") ?? undefined,
     videoUrl: formData.get("videoUrl"),
     status: formData.get("status"),
   });
@@ -63,7 +76,7 @@ export async function createPost(
       author_id: userId,
       title: values.title,
       category: values.category || "활동내역",
-      content: toPageContent(values.content),
+      content: toPageContent(values.content, values.photoUrls),
       thumbnail_url: values.thumbnailUrl || null,
       video_url: values.videoUrl || null,
       status: values.status,
@@ -90,6 +103,7 @@ export async function updatePost(
     category: formData.get("category"),
     content: formData.get("content"),
     thumbnailUrl: formData.get("thumbnailUrl"),
+    photoUrls: formData.get("photoUrls") ?? undefined,
     videoUrl: formData.get("videoUrl"),
     status: formData.get("status"),
   });
@@ -112,7 +126,7 @@ export async function updatePost(
     .update({
       title: values.title,
       category: values.category || "활동내역",
-      content: toPageContent(values.content),
+      content: toPageContent(values.content, values.photoUrls),
       thumbnail_url: values.thumbnailUrl || null,
       video_url: values.videoUrl || null,
       status: values.status,

@@ -8,7 +8,9 @@ export type BlockType =
   | "contact"
   | "sns"
   | "divider"
-  | "spacer";
+  | "spacer"
+  | "slider"
+  | "officers";
 
 export interface HeroBlockProps {
   title: string;
@@ -82,6 +84,32 @@ export interface SpacerBlockProps {
   height?: "sm" | "md" | "lg";
 }
 
+/** 메인 슬라이드 배너. title의 줄바꿈(
+)은 그대로 줄바꿈으로 표시된다. */
+export interface SliderSlide {
+  image: string;
+  /** 이미지 대체 텍스트 (사진 내용 묘사) */
+  alt?: string;
+  title?: string;
+  subtitle?: string;
+}
+
+export interface SliderBlockProps {
+  slides: SliderSlide[];
+  /** 자동 넘김 간격(초). 0이면 자동 넘김 없음. 기본 6초 */
+  interval?: number;
+}
+
+/** 역대 임원진 — 기수/연도별 묶음 */
+export interface OfficersBlockProps {
+  title?: string;
+  terms: {
+    /** 예: "2026년", "제3기 (2025~2026)" */
+    label: string;
+    members: { role: string; name: string }[];
+  }[];
+}
+
 export type BlockPropsMap = {
   hero: HeroBlockProps;
   text: TextBlockProps;
@@ -93,6 +121,8 @@ export type BlockPropsMap = {
   sns: SnsBlockProps;
   divider: DividerBlockProps;
   spacer: SpacerBlockProps;
+  slider: SliderBlockProps;
+  officers: OfficersBlockProps;
 };
 
 export type Block<T extends BlockType = BlockType> = {

@@ -70,6 +70,30 @@ export const spacerBlockSchema = z.object({
   height: z.enum(["sm", "md", "lg"]).optional(),
 });
 
+export const sliderBlockSchema = z.object({
+  slides: z
+    .array(
+      z.object({
+        image: z.string().min(1, "슬라이드 이미지 URL을 입력해주세요"),
+        alt: z.string().optional(),
+        title: z.string().optional(),
+        subtitle: z.string().optional(),
+      })
+    )
+    .min(1, "슬라이드를 1개 이상 추가해주세요"),
+  interval: z.number().min(0).max(60).optional(),
+});
+
+export const officersBlockSchema = z.object({
+  title: z.string().optional(),
+  terms: z.array(
+    z.object({
+      label: z.string().min(1, "기수/연도를 입력해주세요"),
+      members: z.array(z.object({ role: z.string(), name: z.string() })),
+    })
+  ),
+});
+
 export const blockSchemaByType = {
   hero: heroBlockSchema,
   text: textBlockSchema,
@@ -81,6 +105,8 @@ export const blockSchemaByType = {
   sns: snsBlockSchema,
   divider: dividerBlockSchema,
   spacer: spacerBlockSchema,
+  slider: sliderBlockSchema,
+  officers: officersBlockSchema,
 } as const;
 
 export const pageContentSchema = z.object({
@@ -99,6 +125,8 @@ export const pageContentSchema = z.object({
         "sns",
         "divider",
         "spacer",
+        "slider",
+        "officers",
       ]),
       props: z.record(z.string(), z.unknown()),
     })
