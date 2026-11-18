@@ -112,6 +112,7 @@ const DBA: AssocConfig = {
         { label: "대회 문의", href: "/contact?type=tournament" },
         { label: "동호회 가입 문의", href: "/contact?type=club" },
         { label: "제휴 · 협력 문의", href: "/contact?type=partner" },
+        { label: "문의 내역", href: "/contact/inquiries" },
       ],
     },
   ],

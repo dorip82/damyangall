@@ -57,7 +57,7 @@ export function AssocHeader({
       </a>
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:h-20 lg:px-8">
         <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5 rounded-lg" aria-label={`${name} 홈`}>
-          <AssocLogo logoUrl={logoUrl} className="size-10 shrink-0 lg:size-12" />
+          <AssocLogo logoUrl={logoUrl} className="h-11 w-9 shrink-0 lg:h-14 lg:w-12" />
           <span className="flex min-w-0 flex-col leading-tight">
             <span className="truncate text-lg font-extrabold tracking-tight text-primary lg:text-xl">{name}</span>
             <span className="truncate text-[9.5px] font-semibold tracking-[0.06em] text-[var(--dba-blue)] sm:text-[10px] lg:text-[11px]">

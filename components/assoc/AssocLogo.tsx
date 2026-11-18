@@ -1,39 +1,23 @@
 import { cn } from "@/lib/utils";
 
-/** 협회 심볼: 농구공 + 담양 대나무 잎. 공식 로고가 등록되면(사이트 정보 logo_url) 그 이미지를 쓴다. */
+/**
+ * 협회 CI. 관리자가 사이트 정보에 로고를 따로 올리면(logo_url) 그 이미지를 쓰고,
+ * 아니면 기본 CI(public/images/assoc/dba-ci.png)를 쓴다. 어두운 배경에는 tone="light".
+ */
 export function AssocLogo({
   className,
   logoUrl,
   label,
+  tone = "dark",
 }: {
   className?: string;
   logoUrl?: string | null;
   label?: string;
+  tone?: "dark" | "light";
 }) {
-  if (logoUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={logoUrl} alt={label ?? ""} className={cn("object-contain", className)} />;
-  }
-  return (
-    <svg
-      viewBox="0 0 64 64"
-      className={className}
-      role={label ? "img" : undefined}
-      aria-label={label}
-      aria-hidden={label ? undefined : true}
-    >
-      <circle cx="30" cy="34" r="24" fill="#F28C28" />
-      <g fill="none" stroke="#10264F" strokeWidth="2.6" strokeLinecap="round">
-        <circle cx="30" cy="34" r="24" />
-        <path d="M6 34h48" />
-        <path d="M30 10v48" />
-        <path d="M13 17c8 6 8 28 0 34" />
-        <path d="M47 17c-8 6-8 28 0 34" />
-      </g>
-      <path d="M44 14C47 5 55 2 62 3c-1 8-6 14-15 14z" fill="#10966B" />
-      <path d="M45 16c4-5 9-9 15-12" stroke="#fff" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-    </svg>
-  );
+  const src = logoUrl || (tone === "light" ? "/images/assoc/dba-ci-white.png" : "/images/assoc/dba-ci.png");
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt={label ?? ""} width={300} height={362} className={cn("object-contain", className)} />;
 }
 
 /** 농구 코트 라인 장식 (배경용) */

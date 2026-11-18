@@ -24,6 +24,32 @@ const postSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED"]),
 });
 
+/** 첨부파일 목록(JSON). 우리 저장소(site-assets) 주소만, 최대 20개. 형식이 틀리면 빈 목록. */
+const attachmentSchema = z
+  .array(
+    z.object({
+      url: z.string().url().max(1000).refine((u) => u.includes("/storage/v1/object/public/site-assets/")),
+      name: z.string().min(1).max(200),
+      size: z.number().int().nonnegative().optional(),
+    })
+  )
+  .max(20);
+
+function parseBoardExtras(formData: FormData) {
+  const raw = formData.get("attachments");
+  let attachments: z.infer<typeof attachmentSchema> | undefined;
+  if (typeof raw === "string") {
+    try {
+      const r = attachmentSchema.safeParse(JSON.parse(raw));
+      attachments = r.success ? r.data : [];
+    } catch {
+      attachments = [];
+    }
+  }
+  // 게시판형 폼이 아니면(첨부 입력이 없으면) 두 값 모두 건드리지 않는다.
+  return attachments === undefined ? {} : { attachments, is_pinned: formData.get("isPinned") === "on" };
+}
+
 export interface PostFormState {
   ok: boolean;
   error?: string;
@@ -80,6 +106,7 @@ export async function createPost(
       thumbnail_url: values.thumbnailUrl || null,
       video_url: values.videoUrl || null,
       status: values.status,
+      ...parseBoardExtras(formData),
       published_at: values.status === "PUBLISHED" ? new Date().toISOString() : null,
     })
     .select("id")
@@ -130,6 +157,7 @@ export async function updatePost(
       thumbnail_url: values.thumbnailUrl || null,
       video_url: values.videoUrl || null,
       status: values.status,
+      ...parseBoardExtras(formData),
       published_at:
         values.status === "PUBLISHED"
           ? (existing?.published_at ?? new Date().toISOString())

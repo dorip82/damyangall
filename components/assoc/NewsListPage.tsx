@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Eye, ImageIcon, PlayCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, PlayCircle } from "lucide-react";
 import { formatDate, getAssocContext, loadPosts, type AssocPost } from "@/lib/assoc/data";
 import { getYouTubeThumbnail } from "@/lib/utils/youtube";
-import { AssocContainer, AssocPageHeader, CategoryBadge, EmptyState } from "@/components/assoc/ui";
+import { AssocContainer, AssocPageHeader, EmptyState } from "@/components/assoc/ui";
+import { BoardList, BoardSearch } from "@/components/assoc/BoardList";
+
+/** 렌더 함수 밖에서 현재 시각을 읽는다 (요청마다 새로 그리는 서버 컴포넌트) */
+function nowMs() {
+  return Date.now();
+}
 
 export type NewsKind = "all" | "notice" | "association" | "press" | "gallery" | "video";
 
@@ -16,13 +22,15 @@ const KIND: Record<NewsKind, { title: string; description: string; current: stri
 };
 
 const PAGE_SIZE = 12;
+const BOARD_SIZE = 15;
 
 export function newsMetadata(kind: NewsKind) {
   const k = KIND[kind];
   return { title: k.title, description: k.description, alternates: { canonical: k.current } };
 }
 
-export async function NewsListPage({ kind, page: pageParam }: { kind: NewsKind; page?: string }) {
+export async function NewsListPage({ kind, page: pageParam, q: qParam }: { kind: NewsKind; page?: string; q?: string }) {
+  const q = qParam?.trim().slice(0, 50) || undefined;
   const { site, config } = await getAssocContext();
   const section = config.nav.find((n) => n.href === "/news")!;
   const def = KIND[kind];
@@ -30,12 +38,17 @@ export async function NewsListPage({ kind, page: pageParam }: { kind: NewsKind; 
   let posts: AssocPost[];
   if (kind === "gallery") posts = await loadPosts(site.id, { onlyPhotos: true });
   else if (kind === "video") posts = await loadPosts(site.id, { onlyVideo: true });
-  else posts = await loadPosts(site.id, { categories: def.categories });
+  else posts = await loadPosts(site.id, { categories: def.categories, query: q });
 
-  const pages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
-  const page = Math.min(pages, Math.max(1, Number(pageParam) || 1));
-  const shown = posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const visual = kind === "gallery" || kind === "video";
+  // 게시판: 상단 고정 글은 검색이 아닐 때 매 페이지 맨 위에 따로 보여준다.
+  const pinned = !visual && !q ? posts.filter((p) => p.isPinned) : [];
+  const listed = pinned.length ? posts.filter((p) => !p.isPinned) : posts;
+  const size = visual ? PAGE_SIZE : BOARD_SIZE;
+  const pages = Math.max(1, Math.ceil(listed.length / size));
+  const page = Math.min(pages, Math.max(1, Number(pageParam) || 1));
+  const shown = listed.slice((page - 1) * size, page * size);
+  const pageHref = (n: number) => `${def.current}?${q ? `q=${encodeURIComponent(q)}&` : ""}page=${n}`;
 
   return (
     <>
@@ -46,8 +59,9 @@ export async function NewsListPage({ kind, page: pageParam }: { kind: NewsKind; 
         current={def.current}
       />
       <AssocContainer>
-        {!shown.length ? (
-          <EmptyState title="등록된 게시물이 없습니다" description="새 소식이 등록되면 이곳에 표시됩니다." />
+        {!visual ? <BoardSearch action={def.current} q={q} total={listed.length} /> : null}
+        {!shown.length && !pinned.length ? (
+          <EmptyState title={q ? "검색 결과가 없습니다" : "등록된 게시물이 없습니다"} description={q ? "다른 낱말로 검색해 보세요." : "새 소식이 등록되면 이곳에 표시됩니다."} />
         ) : visual ? (
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {shown.map((p) => {
@@ -81,50 +95,20 @@ export async function NewsListPage({ kind, page: pageParam }: { kind: NewsKind; 
             })}
           </ul>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-border bg-white">
-            <div className="hidden grid-cols-[110px_1fr_120px_80px] border-b border-border bg-[var(--dba-soft)] px-5 py-3 text-sm font-bold text-muted-foreground md:grid">
-              <span>구분</span>
-              <span>제목</span>
-              <span className="text-center">등록일</span>
-              <span className="text-center">조회</span>
-            </div>
-            <ul className="divide-y divide-border">
-              {shown.map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/news/${p.id}`}
-                    className="group grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1 px-5 py-4 hover:bg-[var(--dba-soft)] md:grid-cols-[110px_1fr_120px_80px]"
-                  >
-                    <span>
-                      <CategoryBadge>{p.category ?? "소식"}</CategoryBadge>
-                    </span>
-                    <span className="min-w-0 truncate text-[16px] font-semibold group-hover:text-[var(--dba-blue)]">{p.title}</span>
-                    <span className="col-span-2 text-sm text-muted-foreground tabular-nums md:col-span-1 md:text-center">
-                      {formatDate(p.published_at)}
-                    </span>
-                    <span className="hidden items-center justify-center gap-1 text-sm text-muted-foreground md:flex">
-                      <Eye className="size-3.5" aria-hidden />
-                      <span className="sr-only">조회수</span>
-                      {p.view_count}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <BoardList pinned={pinned} rows={shown} startNumber={listed.length - (page - 1) * size} showCategory={kind === "all"} now={nowMs()} />
         )}
 
         {pages > 1 ? (
           <nav aria-label="페이지 이동" className="mt-10 flex items-center justify-center gap-1">
             {page > 1 ? (
-              <Link href={`${def.current}?page=${page - 1}`} aria-label="이전 페이지" className="flex size-10 items-center justify-center rounded-full border border-border hover:border-primary">
+              <Link href={pageHref(page - 1)} aria-label="이전 페이지" className="flex size-10 items-center justify-center rounded-full border border-border hover:border-primary">
                 <ChevronLeft className="size-4" aria-hidden />
               </Link>
             ) : null}
             {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
               <Link
                 key={n}
-                href={`${def.current}?page=${n}`}
+                href={pageHref(n)}
                 aria-current={n === page ? "page" : undefined}
                 className={
                   n === page
@@ -136,7 +120,7 @@ export async function NewsListPage({ kind, page: pageParam }: { kind: NewsKind; 
               </Link>
             ))}
             {page < pages ? (
-              <Link href={`${def.current}?page=${page + 1}`} aria-label="다음 페이지" className="flex size-10 items-center justify-center rounded-full border border-border hover:border-primary">
+              <Link href={pageHref(page + 1)} aria-label="다음 페이지" className="flex size-10 items-center justify-center rounded-full border border-border hover:border-primary">
                 <ChevronRight className="size-4" aria-hidden />
               </Link>
             ) : null}

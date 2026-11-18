@@ -209,8 +209,18 @@ export function InquiryForm({
   if (state.ok) {
     return (
       <Done title="문의가 접수되었습니다">
-        <p>담당자가 확인한 뒤 남겨주신 연락처로 답변드리겠습니다.</p>
-        <p className="mt-1 text-sm text-muted-foreground">문의 내용은 공개되지 않으며 관리자만 볼 수 있습니다.</p>
+        <p>담당자가 확인한 뒤 답변드리겠습니다.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          문의 내용과 답변은 접수할 때 정한 조회 비밀번호로 언제든 다시 볼 수 있습니다.
+        </p>
+        {state.inquiryId ? (
+          <Link
+            href={`/contact/inquiries/${state.inquiryId}`}
+            className="mt-5 inline-flex h-12 items-center rounded-full bg-primary px-7 font-extrabold text-primary-foreground hover:bg-[var(--dba-blue)]"
+          >
+            내 문의 보기
+          </Link>
+        ) : null}
       </Done>
     );
   }
@@ -263,6 +273,26 @@ export function InquiryForm({
       </Field>
       <Field id="content" label="문의 내용" required error={fe.content}>
         <textarea id="content" name="content" rows={7} required maxLength={5000} aria-invalid={!!fe.content} aria-describedby={describedBy("content", false, fe.content)} className={cn(inputCls, "py-3")} />
+      </Field>
+      <Field
+        id="password"
+        label="조회 비밀번호"
+        required
+        hint="4자 이상. 나중에 문의 내역에서 내 문의와 답변을 볼 때 씁니다. 관리자도 알 수 없으니 꼭 기억해주세요."
+        error={fe.password}
+      >
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          minLength={4}
+          maxLength={30}
+          autoComplete="new-password"
+          aria-invalid={!!fe.password}
+          aria-describedby={describedBy("password", true, fe.password)}
+          className={cn(inputCls, "h-12 sm:max-w-xs")}
+        />
       </Field>
       <PrivacyConsent items="이름, 연락처(전화 또는 이메일), 문의 내용" error={fe.privacy} />
       <button

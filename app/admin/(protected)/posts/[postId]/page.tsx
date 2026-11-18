@@ -35,12 +35,13 @@ export default async function AdminEditPostPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-foreground">활동내역 수정</h1>
+        <h1 className="text-xl font-bold text-foreground">{assocCategories ? "게시글 수정" : "활동내역 수정"}</h1>
         <DeletePostButton postId={post.id} siteId={site.id} />
       </div>
       <PostForm
         siteId={site.id}
         categories={assocCategories}
+        board={!!assocCategories}
         defaultCategory={assocCategories?.[0]} post={post} action={boundUpdate} submitLabel="저장" />
     </div>
   );

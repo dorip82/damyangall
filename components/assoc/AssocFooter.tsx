@@ -41,9 +41,7 @@ export function AssocFooter({ info }: { info: AssocFooterInfo }) {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr_auto]">
           <div>
             <div className="flex items-center gap-3">
-              <span className="flex size-14 items-center justify-center rounded-full bg-white">
-                <AssocLogo logoUrl={info.logoUrl} className="size-11" />
-              </span>
+              <AssocLogo logoUrl={info.logoUrl} tone="light" className="h-14 w-12 shrink-0" />
               <div>
                 <p className="text-xl font-extrabold">{info.name}</p>
                 <p className="text-[11px] font-semibold tracking-[0.08em] text-white/70">{info.englishName}</p>

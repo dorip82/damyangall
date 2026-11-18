@@ -28,7 +28,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
       <AssocPageHeader
         section={section}
         title="문의하기"
-        description="궁금한 점을 남겨주시면 담당자가 확인 후 연락드립니다. 문의 내용은 공개되지 않습니다."
+        description="궁금한 점을 남겨주시면 담당자가 확인 후 답변드립니다. 문의 내용은 공개되지 않으며, 문의 내역에서 조회 비밀번호로 내 문의와 답변을 볼 수 있습니다."
         current={current}
       />
       <AssocContainer className="grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -71,6 +71,12 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
             </a>{" "}
             페이지에서 바로 접수할 수 있습니다.
           </p>
+          <a
+            href="/contact/inquiries"
+            className="flex items-center justify-center rounded-2xl border border-border p-4 font-bold text-primary hover:border-primary"
+          >
+            내 문의 · 답변 확인하기
+          </a>
         </aside>
       </AssocContainer>
     </>

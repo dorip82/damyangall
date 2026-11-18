@@ -78,6 +78,8 @@ export interface AssocPost {
   thumbnail_url: string | null;
   published_at: string | null;
   view_count: number;
+  isPinned: boolean;
+  attachmentCount: number;
   youtubeId: string | null;
   photos: { url: string; caption?: string }[];
 }
@@ -89,7 +91,7 @@ export async function loadPosts(
   const supabase = await createClient();
   let q = supabase
     .from("site_posts")
-    .select("id, title, category, thumbnail_url, video_url, published_at, view_count, content")
+    .select("id, title, category, thumbnail_url, video_url, published_at, view_count, content, is_pinned, attachments")
     .eq("site_id", siteId)
     .eq("status", "PUBLISHED")
     .order("published_at", { ascending: false })
@@ -112,6 +114,8 @@ export async function loadPosts(
       thumbnail_url: p.thumbnail_url,
       published_at: p.published_at,
       view_count: p.view_count ?? 0,
+      isPinned: !!p.is_pinned,
+      attachmentCount: Array.isArray(p.attachments) ? p.attachments.length : 0,
       youtubeId,
       photos,
     };

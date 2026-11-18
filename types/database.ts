@@ -251,6 +251,8 @@ export interface Database {
           video_url: string | null;
           view_count: number;
           like_count: number;
+          is_pinned: boolean;
+          attachments: { url: string; name: string; size?: number }[];
           status: PostStatus;
           published_at: string | null;
           created_at: string;
@@ -277,6 +279,9 @@ export interface Database {
           is_private: boolean;
           inquiry_type: string | null;
           privacy_agreed_at: string | null;
+          view_password_hash: string | null;
+          view_failed_count: number;
+          view_locked_until: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -626,6 +631,42 @@ export interface Database {
           role: SiteMemberRole;
           status: SiteMemberStatus;
           joined_at: string;
+        }[];
+      };
+      submit_site_inquiry: {
+        Args: {
+          target_site_id: string;
+          p_inquiry_type: string;
+          p_author_name: string;
+          p_author_contact: string;
+          p_title: string;
+          p_content: string;
+          p_password: string;
+        };
+        Returns: string;
+      };
+      list_site_inquiries_public: {
+        Args: { target_site_id: string };
+        Returns: {
+          id: string;
+          inquiry_type: string | null;
+          masked_name: string;
+          created_at: string;
+          answered: boolean;
+          can_view: boolean;
+        }[];
+      };
+      view_site_inquiry: {
+        Args: { target_site_id: string; target_inquiry_id: string; p_password: string };
+        Returns: {
+          result: "OK" | "WRONG" | "LOCKED" | "NOT_FOUND";
+          title: string | null;
+          content: string | null;
+          inquiry_type: string | null;
+          author_name: string | null;
+          created_at: string | null;
+          reply_content: string | null;
+          replied_at: string | null;
         }[];
       };
       add_site_member_by_email: {

@@ -18,6 +18,7 @@ export default async function AdminNewPostPage() {
       <PostForm
         siteId={site.id}
         categories={assocCategories}
+        board={!!assocCategories}
         defaultCategory={assocCategories?.[0]} action={createPost} submitLabel="등록" />
     </div>
   );
