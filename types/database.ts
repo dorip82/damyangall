@@ -48,7 +48,14 @@ export type DirectoryCategory =
   | "PARKING"
   | "PENSION"
   | "MART"
-  | "BANK";
+  | "BANK"
+  | "BEAUTY_SALON"
+  | "SKIN_CARE"
+  | "HOSPITAL"
+  | "FITNESS"
+  | "ACADEMY"
+  | "AUTO_SERVICE"
+  | "LIFE_SERVICE";
 export type DirectoryListingStatus = "PUBLISHED" | "HIDDEN";
 export type FavoriteTargetType = "DIRECTORY_LISTING" | "SITE";
 export type CommunityCategory =

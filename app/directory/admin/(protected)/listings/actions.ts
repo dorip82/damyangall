@@ -146,7 +146,14 @@ export async function toggleListingStatus(
   revalidatePath("/directory/admin/listings");
 }
 
-const CATEGORY_BY_LABEL = new Map(DIRECTORY_CATEGORIES.map((c) => [c.label, c.value]));
+/** "피부·네일관리", "피부 네일관리", "피부네일관리"를 같은 이름으로 본다 */
+const squash = (s: string) => s.replace(/[·.\s]/g, "");
+
+const CATEGORY_BY_LABEL = new Map<string, string>(
+  DIRECTORY_CATEGORIES.flatMap((c) =>
+    [c.label, ...(c.aliases ?? [])].map((name) => [squash(name), c.value] as const)
+  )
+);
 const CATEGORY_VALUE_SET = new Set(CATEGORY_VALUES);
 const MAX_BULK_ROWS = 300;
 
@@ -154,7 +161,7 @@ function normalizeCategory(raw: string): string | null {
   const trimmed = raw.trim();
   const upper = trimmed.toUpperCase();
   if (CATEGORY_VALUE_SET.has(upper)) return upper;
-  return CATEGORY_BY_LABEL.get(trimmed) ?? null;
+  return CATEGORY_BY_LABEL.get(squash(trimmed)) ?? null;
 }
 
 function normalizeStatus(raw: string): "PUBLISHED" | "HIDDEN" | null {

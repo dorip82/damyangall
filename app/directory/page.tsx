@@ -29,12 +29,16 @@ export default async function DirectoryPage({
     .order("created_at", { ascending: false });
   if (activeCategory) query = query.eq("category", activeCategory);
 
-  const [{ data: listings }, favoritedIds, { data: userData }] = await Promise.all([
+  const [{ data: listings }, { data: categoryRows }, favoritedIds, { data: userData }] = await Promise.all([
     query,
+    supabase.from("directory_listings").select("category").eq("status", "PUBLISHED"),
     getFavoritedIds("DIRECTORY_LISTING"),
     supabase.auth.getUser(),
   ]);
   const isLoggedIn = Boolean(userData.user);
+  // 업체가 하나라도 있는 카테고리만 필터로 보여준다 (빈 카테고리는 숨김).
+  const present = new Set((categoryRows ?? []).map((r) => r.category));
+  const filterCategories = DIRECTORY_CATEGORIES.filter((c) => present.has(c.value) || c.value === activeCategory);
 
   return (
     <div className="site-theme portal-theme flex min-h-screen flex-col bg-background text-foreground">
@@ -59,7 +63,7 @@ export default async function DirectoryPage({
             >
               전체
             </Link>
-            {DIRECTORY_CATEGORIES.map((c) => (
+            {filterCategories.map((c) => (
               <Link
                 key={c.value}
                 href={`/directory?category=${c.value}`}
